@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kubera</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#121212">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+    <header>
+        <h1>Kubera</h1>
+        <div class="axyapatra-display">
+            <span>Axyapatra</span>
+            <span id="axyapatra-balance">₹0</span>
+        </div>
+    </header>
+
+    <nav class="bottom-nav">
+        <button class="tab-btn active" data-target="ritual">Ritual</button>
+        <button class="tab-btn" data-target="mandala">Mandala</button>
+        <button class="tab-btn" data-target="records">Records</button>
+        <button class="tab-btn" data-target="insights">Insights</button>
+        <button class="tab-btn" data-target="steps">Sacred Steps</button>
+        <button class="tab-btn" data-target="controls">Controls</button>
+    </nav>
+
+    <main>
+        <section id="ritual" class="tab-content active">
+            <div class="dashboard-bar">
+                <div class="stat"><span>Cycle</span><span id="ui-cycle">0</span></div>
+                <div class="stat"><span>Offering</span><span id="ui-offering">₹0</span></div>
+                <div class="stat"><span>Weight</span><span id="ui-weight">0</span></div>
+                <div class="stat"><span>Energy</span><span id="ui-energy">Low</span></div>
+            </div>
+
+            <div class="keypads-container">
+                <div class="side-panel">
+                    <h2>Yaksha</h2>
+                    <div class="keypad" id="kp-yaksha">
+                        <button data-num="1">1</button><button data-num="2">2</button><button data-num="3">3</button>
+                        <button data-num="4">4</button><button data-num="5">5</button><button data-num="6">6</button>
+                        <button data-num="7">7</button><button data-num="8">8</button><button data-num="9">9</button>
+                        <button class="zero" data-num="0">0</button>
+                    </div>
+                </div>
+                <div class="side-panel">
+                    <h2>Kinnara</h2>
+                    <div class="keypad" id="kp-kinnara">
+                        <button data-num="1">1</button><button data-num="2">2</button><button data-num="3">3</button>
+                        <button data-num="4">4</button><button data-num="5">5</button><button data-num="6">6</button>
+                        <button data-num="7">7</button><button data-num="8">8</button><button data-num="9">9</button>
+                        <button class="zero" data-num="0">0</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="btn-undo">Undo</button>
+                <button id="btn-clear">Clear Shoe</button>
+                <button id="btn-new">New Shoe</button>
+            </div>
+        </section>
+
+        <section id="mandala" class="tab-content">
+            <div class="mandala-grid-container">
+                <div class="mandala-side">
+                    <h2>Yaksha</h2>
+                    <div class="mandala-grid" id="mg-yaksha"></div>
+                </div>
+                <div class="mandala-side">
+                    <h2>Kinnara</h2>
+                    <div class="mandala-grid" id="mg-kinnara"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="records" class="tab-content">
+            <button id="btn-export">Export CSV</button>
+            <div class="table-container">
+                <table id="records-table">
+                    <thead>
+                        <tr>
+                            <th>Cycle</th>
+                            <th>Yaksha</th>
+                            <th>Kinnara</th>
+                            <th>Total</th>
+                            <th>Axyapatra</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="insights" class="tab-content">
+            <div class="insights-panel">
+                <div class="insight-card"><h3>Volatility</h3><p id="in-volatility">Low</p></div>
+                <div class="insight-card"><h3>Active Fighters</h3><p id="in-active">0</p></div>
+                <div class="insight-card"><h3>Pressure</h3><p id="in-pressure">Normal</p></div>
+                <div class="insight-card"><h3>Hot Zone</h3><p id="in-hotzone">-</p></div>
+            </div>
+        </section>
+
+        <section id="steps" class="tab-content">
+            <div class="steps-header">
+                <h2>Ladder Configurations</h2>
+                <button id="btn-save-steps">Save Steps</button>
+            </div>
+            <div id="steps-container" class="steps-grid"></div>
+        </section>
+
+        <section id="controls" class="tab-content">
+            <form id="settings-form">
+                <div class="form-group">
+                    <label>Starting Axyapatra</label>
+                    <input type="number" id="set-balance" value="30000">
+                </div>
+                <div class="form-group">
+                    <label>Target Profit</label>
+                    <input type="number" id="set-target-profit" value="500">
+                </div>
+                <div class="form-group">
+                    <label>Target Percent (%)</label>
+                    <input type="number" id="set-target-percent" value="1.67" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Min Bet</label>
+                    <input type="number" id="set-min-bet" value="100">
+                </div>
+                <div class="form-group">
+                    <label>Max Bet</label>
+                    <input type="number" id="set-max-bet" value="3000">
+                </div>
+                <div class="form-group">
+                    <label>Bet Multiple</label>
+                    <input type="number" id="set-multiple" value="100">
+                </div>
+                <div class="form-group">
+                    <label>Profit per Number</label>
+                    <input type="number" id="set-profit-num" value="500">
+                </div>
+                <div class="form-group">
+                    <label>Entry Mode</label>
+                    <select id="set-entry-mode">
+                        <option value="standard">Standard</option>
+                    </select>
+                </div>
+                <div class="form-group cap-toggle">
+                    <label>CAP Rule</label>
+                    <label class="switch">
+                        <input type="checkbox" id="set-cap-rule" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <button type="submit" class="full-btn">Apply Settings</button>
+            </form>
+        </section>
+    </main>
+
+    <div id="cap-modal" class="modal">
+        <div class="modal-content">
+            <h3>CAP Reached</h3>
+            <p>Number <span id="cap-num"></span> has reached its limit.</p>
+            <div class="modal-actions">
+                <button id="btn-cap-activate">ACTIVATE</button>
+                <button id="btn-cap-quit">QUIT</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alert-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="alert-title">Notice</h3>
+            <p id="alert-message"></p>
+            <div class="modal-actions">
+                <button id="btn-alert-ok">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
