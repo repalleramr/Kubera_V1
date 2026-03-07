@@ -1,0 +1,102 @@
+:root {
+    --bg-color: #0d0d0d;
+    --panel-bg: #1a1a1a;
+    --primary-gold: #d4af37;
+    --text-main: #e0e0e0;
+    --text-muted: #888888;
+    --border-color: #333333;
+    --active-color: #4CAF50;
+    --cap-color: #ff9800;
+    --won-color: #03a9f4;
+    --locked-color: #f44336;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+header { padding: 15px 20px; background: var(--panel-bg); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+header h1 { color: var(--primary-gold); font-size: 1.5rem; letter-spacing: 2px; text-transform: uppercase; }
+.axyapatra-display { display: flex; flex-direction: column; text-align: right; }
+.axyapatra-display span:first-child { font-size: 0.75rem; color: var(--text-muted); }
+.axyapatra-display span:last-child { font-size: 1.25rem; font-weight: bold; color: var(--primary-gold); }
+
+main { flex: 1; overflow-y: auto; padding-bottom: 70px; }
+.tab-content { display: none; padding: 15px; animation: fadeIn 0.3s ease; }
+.tab-content.active { display: block; }
+
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--panel-bg); display: flex; overflow-x: auto; border-top: 1px solid var(--border-color); z-index: 100; }
+.tab-btn { flex: 1; min-width: 80px; padding: 15px 5px; background: none; border: none; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; text-transform: uppercase; }
+.tab-btn.active { color: var(--primary-gold); border-bottom: 3px solid var(--primary-gold); }
+
+/* Ritual Tab */
+.dashboard-bar { display: flex; justify-content: space-between; background: var(--panel-bg); padding: 10px; border-radius: 8px; margin-bottom: 15px; }
+.stat { display: flex; flex-direction: column; align-items: center; }
+.stat span:first-child { font-size: 0.7rem; color: var(--text-muted); }
+.stat span:last-child { font-size: 1.1rem; font-weight: bold; }
+
+.keypads-container { display: flex; gap: 10px; }
+.side-panel { flex: 1; background: var(--panel-bg); padding: 10px; border-radius: 8px; }
+.side-panel h2 { text-align: center; font-size: 1rem; margin-bottom: 10px; color: var(--text-muted); }
+.keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.keypad button { background: #2a2a2a; color: var(--text-main); border: 1px solid var(--border-color); padding: 15px 0; font-size: 1.2rem; border-radius: 5px; cursor: pointer; transition: transform 0.1s, background 0.2s; }
+.keypad button:active { transform: scale(0.95); background: var(--primary-gold); color: #000; }
+.keypad .zero { grid-column: 2; }
+
+.action-buttons { display: flex; gap: 10px; margin-top: 20px; }
+.action-buttons button { flex: 1; padding: 12px; border: none; border-radius: 5px; background: #333; color: white; text-transform: uppercase; font-weight: bold; }
+#btn-new { background: var(--primary-gold); color: #000; }
+
+/* Mandala Tab */
+.mandala-grid-container { display: flex; flex-direction: column; gap: 20px; }
+.mandala-side h2 { margin-bottom: 10px; color: var(--text-muted); }
+.mandala-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.m-tile { padding: 20px; text-align: center; border-radius: 8px; border: 1px solid var(--border-color); background: #222; font-weight: bold; font-size: 1.2rem; }
+.m-tile.INACTIVE { color: var(--text-muted); }
+.m-tile.ACTIVE { background: var(--active-color); color: white; }
+.m-tile.CAP { background: var(--cap-color); color: black; }
+.m-tile.WON { background: var(--won-color); color: white; }
+.m-tile.LOCKED { background: var(--locked-color); color: white; opacity: 0.5; }
+
+/* Records Tab */
+.table-container { overflow-x: auto; margin-top: 15px; }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th, td { padding: 10px; border-bottom: 1px solid var(--border-color); }
+th { color: var(--primary-gold); font-size: 0.85rem; }
+td { font-size: 0.9rem; }
+#btn-export { background: var(--primary-gold); color: #000; padding: 10px 15px; border: none; border-radius: 5px; font-weight: bold; }
+
+/* Insights Tab */
+.insights-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.insight-card { background: var(--panel-bg); padding: 20px; border-radius: 8px; text-align: center; }
+.insight-card h3 { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
+.insight-card p { font-size: 1.5rem; font-weight: bold; color: var(--primary-gold); }
+
+/* Controls & Sacred Steps */
+.form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+.form-group label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
+.form-group input, .form-group select { padding: 10px; background: #222; border: 1px solid var(--border-color); color: white; border-radius: 5px; }
+.full-btn, #btn-save-steps { width: 100%; padding: 12px; background: var(--primary-gold); color: #000; border: none; font-weight: bold; border-radius: 5px; text-transform: uppercase; margin-top: 10px; }
+.steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 15px; }
+.steps-grid input { padding: 8px; background: #222; border: 1px solid #333; color: white; text-align: center; }
+
+/* Toggle Switch */
+.cap-toggle { flex-direction: row; justify-content: space-between; align-items: center; }
+.switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--primary-gold); }
+input:checked + .slider:before { transform: translateX(26px); }
+
+/* Modals */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
+.modal.active { display: flex; }
+.modal-content { background: var(--panel-bg); padding: 20px; border-radius: 8px; text-align: center; min-width: 300px; border: 1px solid var(--primary-gold); }
+.modal-content h3 { color: var(--primary-gold); margin-bottom: 10px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+.modal-actions button { flex: 1; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+#btn-cap-activate { background: var(--primary-gold); color: #000; }
+#btn-cap-quit { background: var(--locked-color); color: white; }
+#btn-alert-ok { background: var(--primary-gold); color: #000; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
