@@ -1,50 +1,572 @@
-const STORAGE_KEY="kubera_warhunt_state_v2";
-const defaultSettings={axyapatra:30000,targetUsd:500,targetPct:1.67,stopLoss:2000,minBet:100,maxBet:3000,multiple:100,targetNumber:500,doubleLadder:true,maxSteps:12,safety:20000,capRule:true};
-const makeNumState=()=>({state:"INACTIVE",step:1});
-let state={settings:{...defaultSettings},startBankroll:30000,bankroll:30000,chakra:0,totalBetAmount:0,maxExposure:0,netProfit:0,yNums:{},kNums:{},history:[],ladder:[],pendingY:null,pendingK:null};
-let undoStack=[];
-const el=id=>document.getElementById(id);
-const roundUpToMultiple=(value,multiple)=>multiple<=0?value:Math.ceil(value/multiple)*multiple;
-const compact=n=>{n=Number(n||0);return n>=1000?(n%1000===0?(n/1000)+"k":(n/1000).toFixed(1).replace(/\.0$/,'')+"k"):String(n)};
-const money=n=>"₹"+Number(n||0).toLocaleString("en-IN");
-const clone=obj=>JSON.parse(JSON.stringify(obj));
-function initStates(){state.yNums={};state.kNums={};for(let i=1;i<=9;i++){state.yNums[i]=makeNumState();state.kNums[i]=makeNumState();}}
-function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
-function loadState(){const raw=localStorage.getItem(STORAGE_KEY);if(!raw){initStates();state.ladder=generateLadder();return;}try{const parsed=JSON.parse(raw);state={...state,...parsed,settings:{...defaultSettings,...(parsed.settings||{})}};initStates();if(parsed.yNums)Object.assign(state.yNums,parsed.yNums);if(parsed.kNums)Object.assign(state.kNums,parsed.kNums);if(!Array.isArray(state.ladder)||!state.ladder.length)state.ladder=generateLadder();}catch{initStates();state.ladder=generateLadder();}}
-function generateLadder(){const s=state.settings;const ladder=[];let prevLoss=0;let current=roundUpToMultiple(Math.max(s.minBet,s.multiple),s.multiple);for(let i=1;i<=s.maxSteps;i++){current=Math.max(s.minBet,roundUpToMultiple(current,s.multiple));current=Math.min(current,s.maxBet);ladder.push({step:i,amount:current});const netAtStep=(8*current)-prevLoss;prevLoss+=current;if(i<s.maxSteps){if(s.doubleLadder){current=netAtStep<s.targetNumber?Math.min(s.maxBet,roundUpToMultiple(current*2,s.multiple)):current;}else{const required=Math.max(s.minBet,roundUpToMultiple((s.targetNumber+prevLoss)/8,s.multiple));current=Math.min(s.maxBet,required);}}}return ladder;}
-function getBetAmount(step){if(!state.ladder.length)return 0;const safe=Math.min(Math.max(step,1),state.settings.maxSteps);return state.ladder[safe-1].amount;}
-function findStepForAmount(amount){let idx=state.ladder.findIndex(item=>item.amount>=amount);if(idx===-1)idx=state.ladder.length-1;return idx+1;}
-function setToggle(btn,isOn){btn.classList.toggle('on',isOn);btn.textContent=isOn?'ON':'OFF';}
-function showModal(title,message,actions){el('modal-title').textContent=title;el('modal-message').textContent=message;const wrap=el('modal-actions');wrap.innerHTML='';actions.forEach(a=>{const b=document.createElement('button');b.className='modal-btn'+(a.primary?' primary':'')+(a.danger?' danger':'');b.textContent=a.label;b.onclick=()=>{hideModal();if(a.onClick)a.onClick();};wrap.appendChild(b);});el('modal-overlay').classList.remove('hidden');}
-function hideModal(){el('modal-overlay').classList.add('hidden');}
-function bindToggles(){const doubleBtn=el('set-double-ladder'),capBtn=el('set-cap-rule');doubleBtn.addEventListener('click',()=>setToggle(doubleBtn,!doubleBtn.classList.contains('on')));capBtn.addEventListener('click',()=>setToggle(capBtn,!capBtn.classList.contains('on')));}
-function bindTargetLinking(){const a=el('set-axyapatra'),usd=el('set-target-usd'),pct=el('set-target-pct');usd.addEventListener('input',()=>{const start=parseFloat(a.value)||0,val=parseFloat(usd.value)||0;pct.value=start>0?((val/start)*100).toFixed(2):'0';});pct.addEventListener('input',()=>{const start=parseFloat(a.value)||0,val=parseFloat(pct.value)||0;usd.value=Math.round((val/100)*start);});a.addEventListener('input',()=>{const start=parseFloat(a.value)||0,val=parseFloat(usd.value)||0;pct.value=start>0?((val/start)*100).toFixed(2):'0';});}
-function applyYantra(showNote=true){state.settings.axyapatra=parseInt(el('set-axyapatra').value||'30000',10);state.settings.targetUsd=parseFloat(el('set-target-usd').value||'500');state.settings.targetPct=parseFloat(el('set-target-pct').value||'1.67');state.settings.stopLoss=parseInt(el('set-stop-loss').value||'2000',10);state.settings.minBet=parseInt(el('set-min-bet').value||'100',10);state.settings.maxBet=parseInt(el('set-max-bet').value||'3000',10);state.settings.multiple=parseInt(el('set-multiple').value||'100',10);state.settings.targetNumber=parseInt(el('set-target-number').value||'500',10);state.settings.doubleLadder=el('set-double-ladder').classList.contains('on');state.settings.maxSteps=parseInt(el('set-max-steps').value||'12',10);state.settings.safety=parseInt(el('set-safety').value||'20000',10);state.settings.capRule=el('set-cap-rule').classList.contains('on');state.startBankroll=state.settings.axyapatra;state.bankroll=state.startBankroll;state.ladder=generateLadder();resetKumbha(true);saveState();if(showNote)showModal('Yantra Aligned','Sacred settings have been applied successfully.',[{label:'OK',primary:true}]);}
-function resetKumbha(silent=false){state.bankroll=state.startBankroll;state.chakra=0;state.totalBetAmount=0;state.maxExposure=0;state.netProfit=0;state.pendingY=null;state.pendingK=null;state.history=[];initStates();undoStack=[];renderAll();saveState();if(!silent)showModal('New Kumbha Begun','The treasury cycle has been renewed.',[{label:'OK',primary:true}]);}
-function clearPendingOnly(){state.pendingY=null;state.pendingK=null;updateKeypadVisuals();showModal('Battle Marks Cleared','The current selections have been withdrawn.',[{label:'OK',primary:true}]);}
-function bindControls(){el('btn-undo').addEventListener('click',()=>{if(!undoStack.length)return showModal('No Chakra to Reverse','There is no recent battle entry to withdraw.',[{label:'OK',primary:true}]);state=undoStack.pop();renderAll();saveState();showModal('Last Chakra Reversed','The previous battle entry has been withdrawn.',[{label:'OK',primary:true}]);});el('btn-clear').addEventListener('click',()=>showModal('Clear Selections?','The current marks will be removed from the Sangram.',[{label:'Cancel'},{label:'Clear',danger:true,onClick:clearPendingOnly}]));el('btn-new').addEventListener('click',()=>showModal('Begin a New Kumbha?','A fresh treasury cycle will start.',[{label:'Cancel'},{label:'Begin',primary:true,onClick:()=>resetKumbha(true)}]));el('btn-apply-yantra').addEventListener('click',()=>applyYantra(true));}
-function bindNavigation(){document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));btn.classList.add('active');el(btn.dataset.target).classList.add('active');if(btn.dataset.target==='vyuha')renderVyuha();if(btn.dataset.target==='sopana')renderSopana();}));}
-function updateKeypadVisuals(){document.querySelectorAll('.num-btn').forEach(btn=>{const selected=(btn.dataset.side==='Y'&&parseInt(btn.dataset.val,10)===state.pendingY)||(btn.dataset.side==='K'&&parseInt(btn.dataset.val,10)===state.pendingK);btn.classList.toggle('selected',selected);});}
-function bindKeypads(){document.querySelectorAll('.num-btn').forEach(btn=>btn.addEventListener('click',()=>{const side=btn.dataset.side,val=parseInt(btn.dataset.val,10);if(side==='Y')state.pendingY=val;if(side==='K')state.pendingK=val;updateKeypadVisuals();if(state.pendingY!==null&&state.pendingK!==null){undoStack.push(clone(state));processChakra(state.pendingY,state.pendingK);state.pendingY=null;state.pendingK=null;updateKeypadVisuals();}}));}
-function activeNumbersForSide(sideKey){const dict=sideKey==='Y'?state.yNums:state.kNums;const arr=[];for(let i=1;i<=9;i++){const obj=dict[i];if(obj.state==='ACTIVE')arr.push({num:i,step:obj.step,amount:getBetAmount(obj.step)});}return arr.sort((a,b)=>b.step-a.step||a.num-b.num);}
-function sideExposure(sideKey){return activeNumbersForSide(sideKey).reduce((sum,x)=>sum+x.amount,0);}
-function renderYKTPanel(){const rowHTML=arr=>!arr.length?'-':arr.map(item=>`<span class="plan-item step-s${Math.min(item.step,5)}"><span class="amt">${compact(item.amount)}</span> on ${item.num}(<span class="step">S${item.step}</span>)</span>`).join(' | ');el('y-plan').innerHTML=rowHTML(activeNumbersForSide('Y'));el('k-plan').innerHTML=rowHTML(activeNumbersForSide('K'));el('t-plan').textContent=compact(sideExposure('Y')+sideExposure('K'));}
-function renderChakraPanel(){el('current-chakra').textContent=state.chakra;el('chakra-y-active').textContent=activeNumbersForSide('Y').length;el('chakra-k-active').textContent=activeNumbersForSide('K').length;el('chakra-y-net').textContent=money(sideExposure('Y'));el('chakra-k-net').textContent=money(sideExposure('K'));}
-function renderVyuha(){const build=(container,dict)=>{container.innerHTML='';for(let i=1;i<=9;i++){const obj=dict[i];const css=obj.state==='ACTIVE'?'active':obj.state==='CAP'?'cap':obj.state==='LOCKED'?'locked':'inactive';const meta=obj.state==='ACTIVE'?`<span class="step-s${Math.min(obj.step,5)}">S${obj.step}</span> ACTIVE`:obj.state;container.insertAdjacentHTML('beforeend',`<div class="vyuha-tile ${css}"><div class="v-num">${i}</div><div class="v-meta">${meta}</div></div>`);}};build(el('vyuha-y'),state.yNums);build(el('vyuha-k'),state.kNums);}
-function renderHistory(){const body=el('history-body');body.innerHTML='';state.history.slice().reverse().forEach(r=>body.insertAdjacentHTML('beforeend',`<tr><td>${r.chakra}</td><td>${r.y}</td><td>${r.k}</td><td>${r.bet}</td><td>${money(r.bankroll)}</td></tr>`));}
-function renderDrishti(){el('stat-rounds').textContent=state.chakra;el('stat-bets').textContent=money(state.totalBetAmount);el('stat-profit').textContent=money(state.netProfit);el('stat-exposure').textContent=money(state.maxExposure);}
-function renderSopana(){const body=el('ladder-body');body.innerHTML='';state.ladder.forEach((row,idx)=>body.insertAdjacentHTML('beforeend',`<tr><td>S${row.step}</td><td><input type="number" data-idx="${idx}" value="${row.amount}"></td></tr>`));body.querySelectorAll('input').forEach(inp=>{inp.addEventListener('change',()=>{const idx=parseInt(inp.dataset.idx,10);state.ladder[idx].amount=parseInt(inp.value||'0',10);renderYKTPanel();saveState();});inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const next=body.querySelector(`input[data-idx="${parseInt(inp.dataset.idx,10)+1}"]`);if(next){next.focus();next.select();}}});});}
-function renderHeader(){el('start-bankroll').textContent=Number(state.startBankroll).toLocaleString('en-IN');el('live-bankroll').textContent=Number(state.bankroll).toLocaleString('en-IN');}
-function syncYantraUI(){el('set-axyapatra').value=state.settings.axyapatra;el('set-target-usd').value=state.settings.targetUsd;el('set-target-pct').value=state.settings.targetPct;el('set-stop-loss').value=state.settings.stopLoss;el('set-min-bet').value=state.settings.minBet;el('set-max-bet').value=state.settings.maxBet;el('set-multiple').value=state.settings.multiple;el('set-target-number').value=state.settings.targetNumber;el('set-max-steps').value=state.settings.maxSteps;el('set-safety').value=state.settings.safety;setToggle(el('set-double-ladder'),state.settings.doubleLadder);setToggle(el('set-cap-rule'),state.settings.capRule);}
-function renderAll(){renderHeader();renderYKTPanel();renderChakraPanel();renderVyuha();renderHistory();renderDrishti();renderSopana();syncYantraUI();updateKeypadVisuals();}
-function capPrompt(sideKey,num){const dict=sideKey==='Y'?state.yNums:state.kNums;const restartAmount=roundUpToMultiple(Math.max(state.settings.minBet,getBetAmount(state.settings.maxSteps)/4),state.settings.multiple);const restartStep=findStepForAmount(restartAmount);showModal('Sacred Limit Reached',`${sideKey==='Y'?'Yaksha':'Kinnara'} ${num} has returned from CAP.\nChoose its fate.`,[{label:'Abandon the Trail',danger:true,onClick:()=>{dict[num].state='LOCKED';dict[num].step=1;renderAll();saveState();}},{label:'Activate Recovery',primary:true,onClick:()=>{dict[num].state='ACTIVE';dict[num].step=restartStep;renderAll();saveState();}}]);}
-function processSide(sideKey,inputVal){const dict=sideKey==='Y'?state.yNums:state.kNums;if(inputVal===0)return{exposure:0,capHits:[]};let exposure=0;const capHits=[];for(let i=1;i<=9;i++)if(dict[i].state==='ACTIVE')exposure+=getBetAmount(dict[i].step);for(let i=1;i<=9;i++){const obj=dict[i];if(obj.state!=='ACTIVE')continue;const bet=getBetAmount(obj.step);if(i===inputVal){state.bankroll+=bet*9;obj.state='LOCKED';obj.step=1;}else{obj.step+=1;if(obj.step>state.settings.maxSteps){if(state.settings.capRule){obj.state='CAP';obj.step=state.settings.maxSteps;}else{obj.step=state.settings.maxSteps;obj.state='ACTIVE';}}}}
-const current=dict[inputVal];if(current.state==='INACTIVE'){current.state='ACTIVE';current.step=1;}else if(current.state==='CAP'&&state.settings.capRule){capHits.push({sideKey,num:inputVal});}
-return{exposure,capHits};}
-function checkGoalGuards(){if(state.bankroll>=state.startBankroll+state.settings.targetUsd){showModal('Treasury Triumph','The target has been achieved.\nThe Kumbha may now be closed in profit.',[{label:'OK',primary:true}]);}else if(state.bankroll<=state.startBankroll-state.settings.stopLoss){showModal('Treasury Shield Broken','The stop loss has been reached.\nWithdraw from the Sangram and preserve the reserve.',[{label:'OK',primary:true}]);}else if((state.bankroll-(sideExposure('Y')+sideExposure('K')))<state.settings.safety){showModal('Reserve Warning','Safety Reserve is under pressure.',[{label:'OK',primary:true}]);}}
-function processChakra(yIn,kIn){if(yIn===0&&kIn===0){state.chakra+=1;state.history.push({chakra:state.chakra,y:0,k:0,bet:0,bankroll:state.bankroll});renderAll();saveState();return;}const y=processSide('Y',yIn),k=processSide('K',kIn);const exposure=y.exposure+k.exposure;const capHits=y.capHits.concat(k.capHits);state.bankroll-=exposure;state.totalBetAmount+=exposure;state.maxExposure=Math.max(state.maxExposure,exposure);state.netProfit=state.bankroll-state.startBankroll;state.chakra+=1;state.history.push({chakra:state.chakra,y:yIn,k:kIn,bet:exposure,bankroll:state.bankroll});renderAll();saveState();checkGoalGuards();if(capHits.length){const hit=capHits[0];capPrompt(hit.sideKey,hit.num);}}
-function exportCSV(){let csv='Chakra,Yaksha,Kinnara,Bet,Axyapatra\n';state.history.forEach(r=>csv+=`${r.chakra},${r.y},${r.k},${r.bet},${r.bankroll}\n`);const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kubera_granth.csv';a.click();URL.revokeObjectURL(a.href);}function exportJSON(){const blob=new Blob([JSON.stringify(state.history,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kubera_granth.json';a.click();URL.revokeObjectURL(a.href);}function exportPDF(){const w=window.open('','_blank');w.document.write(`<html><head><title>Kubera Granth</title></head><body><h2>KUBERA WARHUNT - Granth</h2>${document.querySelector('.table-container').outerHTML}</body></html>`);w.document.close();w.print();}
-function bindImportExport(){el('btn-export').addEventListener('click',()=>showModal('Granth Sealing','Choose the format for sealing your record.',[{label:'CSV',onClick:exportCSV},{label:'JSON',onClick:exportJSON},{label:'PDF',primary:true,onClick:exportPDF}]));el('btn-import').addEventListener('click',()=>showModal('Import Granth?','Importing a record will replace the current Kumbha.',[{label:'Cancel'},{label:'Import',primary:true,onClick:()=>el('file-import').click()}]));el('file-import').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;const name=file.name.toLowerCase();try{if(name.endsWith('.json')){importRows(JSON.parse(await file.text()));}else if(name.endsWith('.csv')){const lines=(await file.text()).trim().split(/\r?\n/);const rows=lines.slice(1).map(line=>{const[chakra,y,k,bet,axyapatra]=line.split(',');return{chakra:Number(chakra),y:Number(y),k:Number(k),bet:Number(bet),bankroll:Number(axyapatra)}});importRows(rows);}else{showModal('Granth Rejected','Excel import is not supported in this build.\nUse CSV or JSON.',[{label:'OK',primary:true}]);}}catch{showModal('Granth Rejected','The selected record is not in a valid sacred format.',[{label:'OK',primary:true}]);}finally{e.target.value='';}});}
-function importRows(rows){if(!rows||!rows.length)return showModal('Empty Granth','No usable Chakra records were found in the selected file.',[{label:'OK',primary:true}]);resetKumbha(true);rows.forEach(row=>{undoStack.push(clone(state));processChakra(Number(row.y),Number(row.k));});showModal('Granth Restored','The sacred record has been loaded.\nLIVE AXYAPATRA has been renewed.',[{label:'OK',primary:true}]);}
-function bootstrap(){loadState();bindToggles();bindTargetLinking();bindControls();bindNavigation();bindKeypads();bindImportExport();renderAll();if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}}
-bootstrap();
+// #005 - 2026-03-08 15:12:46 PM IST
+
+// ==========================================
+// KUBERA 💰 WARHUNT - Core Engine Logic
+// ==========================================
+
+// --- Configuration & Global State ---
+let settings = {
+    axyapatra: 30000,
+    targetUsd: 1000,
+    targetPct: 10,
+    stopLoss: 10000,
+    minBet: 100,
+    maxBet: 5000,
+    multiple: 1,
+    isDouble: false,
+    maxSteps: 5,
+    safetyReserve: 5000,
+    capRule: true,
+    payoutMultiplier: 9
+};
+
+let ladder = [];
+
+let appState = {
+    currentShoe: 1,
+    chakra: 1,
+    bankroll: 30000,
+    yNums: {}, 
+    kNums: {}
+};
+
+let stateHistory = []; // For Undo
+let allShoesHistory = []; // Granth history
+let pendingY = null;
+let pendingK = null;
+
+// Analytics (Drishti) tracking per shoe
+let drishtiStats = {
+    roundsPlayed: 0,
+    totalBets: 0,
+    netProfit: 0,
+    maxExposure: 0,
+    numData: {} // side_num -> { activationRound, repeatRound, winStep, netProfit, capOccurrence }
+};
+
+// --- Initialization ---
+function init() {
+    initNumbersState();
+    initDrishtiData();
+    bindEvents();
+    syncSettingsFromUI();
+    rebuildLadder();
+    appState.bankroll = settings.axyapatra;
+    updateAllUI();
+    injectModalStyles();
+}
+
+function initNumbersState() {
+    appState.yNums = {};
+    appState.kNums = {};
+    for (let i = 1; i <= 9; i++) {
+        appState.yNums[i] = { state: 'INACTIVE', step: 0 };
+        appState.kNums[i] = { state: 'INACTIVE', step: 0 };
+    }
+}
+
+function initDrishtiData() {
+    drishtiStats.numData = {};
+    ['Y', 'K'].forEach(side => {
+        for (let i = 1; i <= 9; i++) {
+            drishtiStats.numData[`${side}_${i}`] = {
+                activationRound: '-',
+                repeatRound: '-',
+                winStep: '-',
+                netProfit: 0,
+                capOccurrence: 0
+            };
+        }
+    });
+}
+
+// --- DOM / Event Binding ---
+function bindEvents() {
+    document.querySelectorAll('.num-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const side = e.target.getAttribute('data-side');
+            const val = parseInt(e.target.getAttribute('data-val'), 10);
+            handleInput(side, val);
+        });
+    });
+
+    document.getElementById('btn-undo').addEventListener('click', undo);
+    document.getElementById('btn-clear').addEventListener('click', clearKumbha);
+    document.getElementById('btn-new').addEventListener('click', startNewShoe);
+    document.getElementById('btn-apply-yantra').addEventListener('click', applyYantra);
+    
+    // Yantra linked inputs
+    const elAxyapatra = document.getElementById('set-axyapatra');
+    const elTargetUsd = document.getElementById('set-target-usd');
+    const elTargetPct = document.getElementById('set-target-pct');
+
+    elTargetUsd.addEventListener('input', (e) => {
+        let axy = parseFloat(elAxyapatra.value) || 0;
+        let val = parseFloat(e.target.value) || 0;
+        if(axy > 0) elTargetPct.value = ((val / axy) * 100).toFixed(2);
+    });
+
+    elTargetPct.addEventListener('input', (e) => {
+        let axy = parseFloat(elAxyapatra.value) || 0;
+        let val = parseFloat(e.target.value) || 0;
+        elTargetUsd.value = ((val / 100) * axy).toFixed(2);
+    });
+
+    // Granth Export
+    const btnExport = document.getElementById('btn-export');
+    if (btnExport) btnExport.addEventListener('click', exportCSV);
+
+    // Navigation
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const target = e.target.closest('.nav-btn');
+            target.classList.add('active');
+            document.getElementById(target.getAttribute('data-target')).classList.add('active');
+            updateAllUI();
+        });
+    });
+}
+
+// --- Modals & Notifications ---
+function injectModalStyles() {
+    if (document.getElementById('kubera-modal-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'kubera-modal-styles';
+    style.innerHTML = `
+        .kubera-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ffd700; color: #000; padding: 10px 20px; border-radius: 4px; z-index: 10000; font-weight: bold; animation: fadeOut 3s forwards; pointer-events: none; text-transform: uppercase;}
+        .kubera-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .kubera-modal { background: #0a1128; border: 2px solid #ff4500; padding: 20px; border-radius: 8px; text-align: center; color: white; width: 80%; max-width: 400px; text-transform: uppercase;}
+        .kubera-modal h3 { color: #ff4500; margin-bottom: 15px; }
+        .kubera-modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+        .kubera-modal-btns button { flex: 1; padding: 10px; background: #111d40; color: white; border: 1px solid #ffd700; cursor: pointer; border-radius: 4px; font-weight: bold;}
+        .kubera-modal-btns button:hover { background: #ffd700; color: black; }
+        @keyframes fadeOut { 0% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+    `;
+    document.head.appendChild(style);
+}
+
+function showToast(msg) {
+    const t = document.createElement('div');
+    t.className = 'kubera-toast';
+    t.innerText = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+function showModal(title, msg, onContinue, onEnd) {
+    const overlay = document.createElement('div');
+    overlay.className = 'kubera-overlay';
+    
+    let buttonsHTML = '';
+    if (onContinue || onEnd) {
+        buttonsHTML = `<div class="kubera-modal-btns">
+            ${onContinue ? `<button id="k-mod-cont">Continue</button>` : ''}
+            ${onEnd ? `<button id="k-mod-end">End</button>` : ''}
+        </div>`;
+    } else {
+        buttonsHTML = `<div class="kubera-modal-btns"><button id="k-mod-ok">Acknowledge</button></div>`;
+    }
+
+    overlay.innerHTML = `
+        <div class="kubera-modal">
+            <h3>${title}</h3>
+            <p>${msg}</p>
+            ${buttonsHTML}
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    if (onContinue) {
+        document.getElementById('k-mod-cont').addEventListener('click', () => { overlay.remove(); onContinue(); });
+    }
+    if (onEnd) {
+        document.getElementById('k-mod-end').addEventListener('click', () => { overlay.remove(); onEnd(); });
+    }
+    if (!onContinue && !onEnd) {
+        document.getElementById('k-mod-ok').addEventListener('click', () => overlay.remove());
+    }
+}
+
+// --- Engine Execution ---
+function handleInput(side, val) {
+    if (side === 'Y') pendingY = val;
+    if (side === 'K') pendingK = val;
+    highlightPending();
+
+    if (pendingY !== null && pendingK !== null) {
+        processChakra(pendingY, pendingK);
+        pendingY = null;
+        pendingK = null;
+        highlightPending();
+    }
+}
+
+function highlightPending() {
+    document.querySelectorAll('.num-btn').forEach(btn => {
+        let side = btn.getAttribute('data-side');
+        let val = parseInt(btn.getAttribute('data-val'), 10);
+        if ((side === 'Y' && val === pendingY) || (side === 'K' && val === pendingK)) {
+            btn.style.boxShadow = 'inset 0 0 10px #ffd700';
+            btn.style.background = '#ffd700';
+            btn.style.color = 'black';
+        } else {
+            btn.style.boxShadow = '';
+            btn.style.background = '';
+            btn.style.color = '';
+        }
+    });
+}
+
+function getBet(step) {
+    if (step < 1) return 0;
+    let s = Math.min(step, settings.maxSteps);
+    return ladder[s - 1] ? ladder[s - 1].amount : 0;
+}
+
+function processChakra(yVal, kVal) {
+    // 1. Snapshot for Undo
+    stateHistory.push(JSON.parse(JSON.stringify(appState)));
+
+    // 2. Compute current exposure & deduct
+    let roundExposure = 0;
+    let roundBetsCount = 0;
+
+    const calcExposure = (dict) => {
+        for (let i = 1; i <= 9; i++) {
+            if (dict[i].state === 'ACTIVE') {
+                roundExposure += getBet(dict[i].step);
+                roundBetsCount++;
+            }
+        }
+    };
+    calcExposure(appState.yNums);
+    calcExposure(appState.kNums);
+
+    appState.bankroll -= roundExposure;
+    drishtiStats.totalBets += roundBetsCount;
+    drishtiStats.roundsPlayed++;
+    if (roundExposure > drishtiStats.maxExposure) drishtiStats.maxExposure = roundExposure;
+
+    // Record total exposure deducted to analytics stats
+    const applyCostToDrishti = (sideStr, dict) => {
+        for(let i=1; i<=9; i++) {
+            if (dict[i].state === 'ACTIVE') {
+                drishtiStats.numData[`${sideStr}_${i}`].netProfit -= getBet(dict[i].step);
+            }
+        }
+    };
+    applyCostToDrishti('Y', appState.yNums);
+    applyCostToDrishti('K', appState.kNums);
+
+    // 3. Process outcomes
+    let isCapReturnTriggered = false;
+
+    const processSide = (val, dict, sideStr) => {
+        if (val === 0) {
+            // Neutral Loss: all active advance
+            for (let i = 1; i <= 9; i++) {
+                if (dict[i].state === 'ACTIVE') advanceStep(dict[i], `${sideStr}_${i}`);
+            }
+            return;
+        }
+
+        for (let i = 1; i <= 9; i++) {
+            let obj = dict[i];
+            let stat = drishtiStats.numData[`${sideStr}_${i}`];
+
+            if (i === val) {
+                if (obj.state === 'INACTIVE') {
+                    obj.state = 'ACTIVE';
+                    obj.step = 1;
+                    stat.activationRound = appState.chakra;
+                } 
+                else if (obj.state === 'ACTIVE') {
+                    // Win
+                    let winAmt = getBet(obj.step) * settings.payoutMultiplier;
+                    appState.bankroll += winAmt;
+                    stat.netProfit += winAmt;
+                    stat.repeatRound = appState.chakra;
+                    stat.winStep = obj.step;
+                    obj.state = 'LOCKED';
+                    showToast("TREASURY TRIUMPH");
+                }
+                else if (obj.state === 'CAP') {
+                    isCapReturnTriggered = true;
+                }
+                // LOCKED does nothing
+            } else {
+                if (obj.state === 'ACTIVE') {
+                    advanceStep(obj, `${sideStr}_${i}`);
+                }
+            }
+        }
+    };
+
+    function advanceStep(obj, statKey) {
+        obj.step++;
+        if (obj.step > settings.maxSteps) {
+            if (settings.capRule) {
+                obj.state = 'CAP';
+                obj.step = settings.maxSteps; // Hold at max for display
+                drishtiStats.numData[statKey].capOccurrence++;
+            } else {
+                obj.step = settings.maxSteps; // Remains ACTIVE, bets max
+            }
+        }
+    }
+
+    processSide(yVal, appState.yNums, 'Y');
+    processSide(kVal, appState.kNums, 'K');
+
+    // 4. Update Granth History
+    addHistoryRow(appState.chakra, yVal, kVal, roundExposure, appState.bankroll);
+    
+    // Increment Chakra
+    appState.chakra++;
+    drishtiStats.netProfit = appState.bankroll - settings.axyapatra;
+
+    // 5. Post-round checks
+    checkThresholds();
+    updateAllUI();
+
+    if (isCapReturnTriggered) {
+        showModal("CAP RETURNED", "A capped number has returned.", 
+            () => {}, // Continue
+            () => clearKumbha() // End
+        );
+    }
+}
+
+function checkThresholds() {
+    if (appState.bankroll <= settings.stopLoss) {
+        showModal("TREASURY WARNING", `Bankroll reached Stop Loss (₹${settings.stopLoss})`);
+    } else if (appState.bankroll <= settings.safetyReserve) {
+        showModal("TREASURY WARNING", `Bankroll reached Safety Reserve (₹${settings.safetyReserve})`);
+    }
+}
+
+// --- Undo / Clear / New ---
+
+function undo() {
+    if (stateHistory.length === 0) {
+        showToast("No history to undo");
+        return;
+    }
+    appState = stateHistory.pop();
+    
+    const tbody = document.getElementById('history-body');
+    if (tbody.firstElementChild) tbody.removeChild(tbody.firstElementChild);
+    
+    drishtiStats.roundsPlayed = Math.max(0, drishtiStats.roundsPlayed - 1);
+    
+    updateAllUI();
+    showToast("UNDO SUCCESSFUL");
+}
+
+function clearKumbha() {
+    appState.chakra = 1;
+    initNumbersState();
+    stateHistory = [];
+    document.getElementById('history-body').innerHTML = '';
+    pendingY = null;
+    pendingK = null;
+    highlightPending();
+    updateAllUI();
+    showToast("KUMBHA RESET");
+}
+
+function startNewShoe() {
+    // Archive current shoe to history
+    const tbody = document.getElementById('history-body');
+    if (tbody.children.length > 0) {
+        allShoesHistory.push({
+            shoe: appState.currentShoe,
+            html: tbody.innerHTML
+        });
+    }
+
+    appState.currentShoe++;
+    appState.chakra = 1;
+    initNumbersState();
+    stateHistory = [];
+    tbody.innerHTML = '';
+    pendingY = null;
+    pendingK = null;
+    highlightPending();
+    updateAllUI();
+    showToast("NEW KUMBHA STARTED");
+}
+
+// --- Yantra & Sopana Logic ---
+
+function syncSettingsFromUI() {
+    settings.axyapatra = parseInt(document.getElementById('set-axyapatra').value) || 30000;
+    settings.targetUsd = parseInt(document.getElementById('set-target-usd').value) || 1000;
+    settings.targetPct = parseInt(document.getElementById('set-target-pct').value) || 10;
+    settings.stopLoss = parseInt(document.getElementById('set-stop-loss').value) || 10000;
+    settings.minBet = parseInt(document.getElementById('set-min-bet').value) || 100;
+    settings.maxBet = parseInt(document.getElementById('set-max-bet').value) || 5000;
+    settings.multiple = parseInt(document.getElementById('set-multiple').value) || 1;
+    settings.isDouble = document.getElementById('set-double-ladder').checked;
+    settings.maxSteps = parseInt(document.getElementById('set-max-steps').value) || 5;
+    settings.safetyReserve = parseInt(document.getElementById('set-safety').value) || 5000;
+    settings.capRule = document.getElementById('set-cap-rule').checked;
+}
+
+function applyYantra() {
+    syncSettingsFromUI();
+    rebuildLadder();
+    updateAllUI();
+    document.getElementById('start-bankroll').innerText = settings.axyapatra;
+    showToast("YANTRA APPLIED");
+}
+
+function rebuildLadder() {
+    ladder = [];
+    let currentAmt = settings.minBet * settings.multiple;
+    for (let i = 1; i <= Math.max(10, settings.maxSteps); i++) {
+        ladder.push({ step: i, amount: Math.min(currentAmt, settings.maxBet) });
+        if (settings.isDouble) {
+            currentAmt *= 2;
+        } else {
+            currentAmt += (settings.minBet * settings.multiple);
+        }
+    }
+}
+
+// --- UI Rendering ---
+
+const formatCompact = (num) => {
+    if (num >= 1000) return (num % 1000 === 0) ? (num / 1000) + 'k' : (num / 1000).toFixed(1) + 'k';
+    return num;
+};
+
+const formatCurrency = (num) => new Intl.NumberFormat('en-IN').format(num);
+
+function updateAllUI() {
+    document.getElementById('live-bankroll').innerText = formatCurrency(appState.bankroll);
+    document.getElementById('current-chakra').innerText = appState.chakra;
+    
+    renderYKTPanel();
+    renderVyuha();
+    renderSopana();
+    renderDrishti();
+}
+
+function renderYKTPanel() {
+    let yStr = [], kStr = [], tAmt = 0;
+
+    const mapNextBets = (dict, arr) => {
+        for (let i = 1; i <= 9; i++) {
+            if (dict[i].state === 'ACTIVE') {
+                let amt = getBet(dict[i].step);
+                arr.push(`${formatCompact(amt)} on ${i}(<span class="step-s${Math.min(dict[i].step, 5)}">S${dict[i].step}</span>)`);
+                tAmt += amt;
+            }
+        }
+    };
+
+    mapNextBets(appState.yNums, yStr);
+    mapNextBets(appState.kNums, kStr);
+
+    document.querySelector('#y-plan .content').innerHTML = yStr.length ? yStr.join(' | ') : '--';
+    document.querySelector('#k-plan .content').innerHTML = kStr.length ? kStr.join(' | ') : '--';
+    document.querySelector('#t-plan .content').innerText = formatCompact(tAmt);
+}
+
+function renderVyuha() {
+    const yGrid = document.getElementById('vyuha-y');
+    const kGrid = document.getElementById('vyuha-k');
+    if (!yGrid || !kGrid) return;
+    
+    yGrid.innerHTML = '';
+    kGrid.innerHTML = '';
+
+    const createTile = (num, obj) => {
+        let css = obj.state.toLowerCase(); // inactive, active, cap, locked
+        if (obj.state === 'LOCKED') css = 'won'; // Map LOCKED to won visual if preferred, or locked
+        
+        let pct = (obj.step / settings.maxSteps) * 100;
+        if (pct > 100) pct = 100;
+        if (obj.state === 'INACTIVE' || obj.state === 'LOCKED') pct = 0;
+
+        return `
+            <div class="vyuha-tile ${css}" style="position:relative; overflow:hidden;">
+                <div style="position:absolute; bottom:0; left:0; width:100%; height:${pct}%; background:rgba(255,255,255,0.1); z-index:1;"></div>
+                <div style="position:relative; z-index:2; text-align:center;">
+                    <span style="font-size:1.2rem;">${num}</span><br>
+                    <span style="font-size:0.6rem; opacity:0.7;">S${obj.step}</span>
+                </div>
+            </div>`;
+    };
+
+    for (let i = 1; i <= 9; i++) {
+        yGrid.innerHTML += createTile(i, appState.yNums[i]);
+        kGrid.innerHTML += createTile(i, appState.kNums[i]);
+    }
+}
+
+function renderSopana() {
+    const tbody = document.getElementById('ladder-body');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+    
+    let displayLimit = Math.max(settings.maxSteps, ladder.length);
+    for (let i = 0; i < displayLimit; i++) {
+        if (!ladder[i]) break;
+        tbody.innerHTML += `
+            <tr>
+                <td>S${ladder[i].step}</td>
+                <td><input type="number" class="ladder-input" data-idx="${i}" value="${ladder[i].amount}"></td>
+            </tr>`;
+    }
+
+    document.querySelectorAll('.ladder-input').forEach(inp => {
+        inp.addEventListener('change', (e) => {
+            let idx = parseInt(e.target.getAttribute('data-idx'));
+            ladder[idx].amount = parseInt(e.target.value) || 0;
+            updateAllUI();
+        });
+    });
+}
+
+function renderDrishti() {
+    if(document.getElementById('stat-rounds')) document.getElementById('stat-rounds').innerText = drishtiStats.roundsPlayed;
+    if(document.getElementById('stat-bets')) document.getElementById('stat-bets').innerText = drishtiStats.totalBets;
+    if(document.getElementById('stat-profit')) document.getElementById('stat-profit').innerText = formatCurrency(drishtiStats.netProfit);
+    if(document.getElementById('stat-exposure')) document.getElementById('stat-exposure').innerText = formatCurrency(drishtiStats.maxExposure);
+}
+
+function addHistoryRow(chakra, y, k, bet, bank) {
+    const r = `<tr>
+        <td>${chakra}</td>
+        <td>${y === 0 ? '0' : y}</td>
+        <td>${k === 0 ? '0' : k}</td>
+        <td>${bet}</td>
+        <td>${formatCurrency(bank)}</td>
+    </tr>`;
+    document.getElementById('history-body').insertAdjacentHTML('afterbegin', r);
+}
+
+// --- Export CSV ---
+function exportCSV() {
+    let csv = "Side,Number,ActivationRound,RepeatRound,WinStep,NetProfit,CapOccurrence\n";
+    ['Y', 'K'].forEach(side => {
+        for (let i = 1; i <= 9; i++) {
+            let d = drishtiStats.numData[`${side}_${i}`];
+            csv += `${side},${i},${d.activationRound},${d.repeatRound},${d.winStep},${d.netProfit},${d.capOccurrence}\n`;
+        }
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'KUBERA_WARHUNT_Drishti.csv');
+    a.click();
+}
+
+// Launch
+init();
