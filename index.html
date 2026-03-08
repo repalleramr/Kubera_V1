@@ -2,149 +2,61 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>KUBERA WARHUNT V3</title>
-<link rel="stylesheet" href="styles.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kubera</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0a1128">
+<link rel="stylesheet" href="styles.css">
+<meta name="theme-color" content="#1a1a2e">
 </head>
 <body>
-<div id="app-container">
 
-<section id="sangram" class="screen active">
-<header class="top-header gold-border">
-<div class="header-top">
-<div class="header-left">
-<h1>KUBERA WARHUNT</h1>
-<span class="version">V3 Corrected</span>
-</div>
-<div class="header-right gradient-box">Start ₹<span id="start-axyapatra">30000</span></div>
-</div>
-
-<div class="risk-meter-container">
-<div class="risk-meter-label">AI SYSTEM RISK: <span id="risk-meter-text">LOW</span></div>
-<div class="risk-meter-bar-bg"><div id="risk-meter-fill" class="risk-meter-fill low"></div></div>
-</div>
-
-<div class="header-center">
-<h2>LIVE AXYAPATRA</h2>
-<div class="live-bankroll glow-text">₹<span id="live-axyapatra">30,000</span></div>
-</div>
+<header class="top">
+<h1>Kubera</h1>
+<div class="balance">Axyapatra: <span id="balance-value">₹0</span></div>
 </header>
 
-<div id="cap-storm-banner" class="cap-storm-banner">⚠ CAP STORM DETECTED [<span id="storm-intensity">LOW</span>] ⚠</div>
+<div class="keypads">
 
-<div class="keypads-container">
-<div class="keypad-panel gold-border">
-<h3>YAKSHA</h3>
-<div class="grid-keypad" id="padY"></div>
+<div class="panel">
+<h3>Yaksha</h3>
+<div class="grid" id="panel-yaksha">
+<button class="num-btn">1</button>
+<button class="num-btn">2</button>
+<button class="num-btn">3</button>
+<button class="num-btn">4</button>
+<button class="num-btn">5</button>
+<button class="num-btn">6</button>
+<button class="num-btn">7</button>
+<button class="num-btn">8</button>
+<button class="num-btn">9</button>
+<button class="num-btn zero">0</button>
 </div>
-<div class="keypad-panel gold-border">
-<h3>KINNARA</h3>
-<div class="grid-keypad" id="padK"></div>
-</div>
-</div>
-
-<div class="ykt-panel gold-border">
-<div class="ykt-row">Y <span class="content" id="y-plan">--</span></div>
-<div class="ykt-row">K <span class="content" id="k-plan">--</span></div>
-<div class="ykt-row">T (Next Āhuti) <span class="content" id="t-plan">0</span></div>
-</div>
-
-<div class="controls-panel">
-<button id="btn-undo" class="action-btn">Undo</button>
-<button id="btn-clear" class="action-btn">Clear</button>
-<button id="btn-new" class="action-btn">Prayoga</button>
 </div>
 
-<div class="chakra-panel gold-border">
-<h3>CHAKRA PANEL</h3>
-<div>Chakra: <span id="current-chakra">1</span></div>
+<div class="panel">
+<h3>Kinnara</h3>
+<div class="grid" id="panel-kinnara">
+<button class="num-btn">1</button>
+<button class="num-btn">2</button>
+<button class="num-btn">3</button>
+<button class="num-btn">4</button>
+<button class="num-btn">5</button>
+<button class="num-btn">6</button>
+<button class="num-btn">7</button>
+<button class="num-btn">8</button>
+<button class="num-btn">9</button>
+<button class="num-btn zero">0</button>
 </div>
-</section>
-
-<section id="timeline" class="screen">
-<h2 class="screen-title">CHAKRA TIMELINE</h2>
-<div class="timeline-container gold-border" id="timeline-body"></div>
-</section>
-
-<section id="vyuha" class="screen">
-<h2 class="screen-title">VYUHA HEATMAP</h2>
-<div class="vyuha-grids">
-<div class="v-grid-container gold-border"><h3>YAKSHA</h3><div class="vyuha-grid" id="vyuha-y"></div></div>
-<div class="v-grid-container gold-border"><h3>KINNARA</h3><div class="vyuha-grid" id="vyuha-k"></div></div>
 </div>
-</section>
 
-<section id="granth" class="screen">
-<h2 class="screen-title">GRANTH HISTORY</h2>
-<div class="table-container gold-border">
-<table>
-<thead><tr><th>Chakra</th><th>Yaksha</th><th>Kinnara</th><th>Āhuti</th><th>Axyapatra</th></tr></thead>
-<tbody id="history-body"></tbody>
-</table>
 </div>
-</section>
 
-<section id="drishti" class="screen">
-<h2 class="screen-title">DRISHTI ANALYTICS</h2>
-<div class="analytics-grid">
-<div class="analytics-card gold-border"><h4>Chakras Played</h4><span class="value" id="stat-rounds">0</span></div>
-<div class="analytics-card gold-border"><h4>Total Āhuti</h4><span class="value" id="stat-bets">0</span></div>
-<div class="analytics-card gold-border"><h4>Net Profit</h4><span class="value" id="stat-profit">0</span></div>
-<div class="analytics-card gold-border"><h4>Max Exposure</h4><span class="value" id="stat-exposure">0</span></div>
+<div class="panel next">
+<div>Y: <span id="next-y">-</span></div>
+<div>K: <span id="next-k">-</span></div>
+<div>T: <span id="next-t">0</span></div>
 </div>
-</section>
 
-<section id="sopana" class="screen">
-<h2 class="screen-title">SOPANA LADDER</h2>
-<div class="table-container gold-border">
-<table>
-<thead><tr><th>Step</th><th>Āhuti Amount</th></tr></thead>
-<tbody id="ladder-body"></tbody>
-</table>
-</div>
-</section>
-
-<section id="yantra" class="screen">
-<h2 class="screen-title">YANTRA</h2>
-<form id="settings-form" class="gold-border">
-<div class="form-group"><label>Axyapatra</label><input type="number" id="set-axyapatra" value="30000"></div>
-<div class="form-group"><label>Target $</label><input type="number" id="set-target-usd" value="500"></div>
-<div class="form-group"><label>Target %</label><input type="number" id="set-target-pct" value="1.67"></div>
-<div class="form-group"><label>Stop Loss</label><input type="number" id="set-stop-loss" value="2000"></div>
-<div class="form-group"><label>Coin Size</label><select id="set-coin-size"><option>10</option><option>50</option><option selected>100</option><option>500</option><option>1000</option></select></div>
-<div class="form-group"><label>Max Āhuti</label><input type="number" id="set-max-bet" value="3000"></div>
-<div class="form-group"><label>Double Ladder</label><input type="checkbox" id="set-double-ladder" checked></div>
-<div class="form-group"><label>Max Steps</label><input type="number" id="set-max-steps" value="12"></div>
-<div class="form-group"><label>Safety Reserve</label><input type="number" id="set-safety" value="20000"></div>
-<div class="form-group"><label>CAP Rule</label><input type="checkbox" id="set-cap-rule" checked></div>
-<div class="form-group"><label>Auto Coin Scaling</label><input type="checkbox" id="set-auto-scale"></div>
-<button type="button" class="action-btn" id="btn-apply-yantra">Apply Yantra</button>
-</form>
-</section>
-
-<section id="medha" class="screen">
-<h2 class="screen-title">MEDHA AI</h2>
-<div class="gold-border medha-box">
-<div>Pattern memory placeholder restored screen.</div>
-<div>Use this corrected build for stable UI, tabs, and notifications.</div>
-</div>
-</section>
-
-<nav class="bottom-nav">
-<button class="nav-btn active" data-target="sangram">SANGRAM</button>
-<button class="nav-btn" data-target="timeline">TIMELINE</button>
-<button class="nav-btn" data-target="vyuha">VYUHA</button>
-<button class="nav-btn" data-target="granth">GRANTH</button>
-<button class="nav-btn" data-target="drishti">DRISHTI</button>
-<button class="nav-btn" data-target="sopana">SOPANA</button>
-<button class="nav-btn" data-target="yantra">YANTRA</button>
-<button class="nav-btn" data-target="medha">MEDHA</button>
-</nav>
-
-<div id="toast-root"></div>
-</div>
 <script src="app.js"></script>
 </body>
 </html>
