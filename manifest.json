@@ -1,11 +1,12 @@
 {
-  "name": "Kubera Mythology",
-  "short_name": "Kubera",
+  "name": "KUBERA WARHUNT V2",
+  "short_name": "WARHUNT V2",
+  "description": "Kubera mythology themed tracker with Medha L5 AI, heatmap, timeline, and risk radar.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#14192d",
-  "theme_color": "#14192d",
+  "background_color": "#050a14",
+  "theme_color": "#0a1128",
   "icons": [
     {
       "src": "icons/icon-192.png",
