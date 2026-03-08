@@ -1,21 +1,22 @@
 {
-  "name": "Kubera Mythology",
-  "short_name": "Kubera",
+  "name": "KUBERA WARHUNT",
+  "short_name": "KUBERA",
+  "description": "Mobile-first strategy tracker app with mythology themed UI.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#14192d",
-  "theme_color": "#14192d",
+  "background_color": "#050a14",
+  "theme_color": "#0a1128",
   "icons": [
     {
       "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "sizes": "192x192"
     },
     {
       "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "sizes": "512x512"
     }
   ]
 }
