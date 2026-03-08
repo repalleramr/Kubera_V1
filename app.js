@@ -7,7 +7,20 @@ const formatCompact=(num)=>num>=1000?((num%1000===0)?(num/1000)+'k':(num/1000).t
 const formatCurrency=(num)=>new Intl.NumberFormat('en-IN').format(num);
 
 function showToast(msg){
-  const root=document.getElementById('toast-root');
+  let root=document.getElementById('toast-root');
+  if(!root){
+    root=document.createElement('div');
+    root.id='toast-root';
+    root.style.position='fixed';
+    root.style.top='14px';
+    root.style.left='0';
+    root.style.right='0';
+    root.style.display='flex';
+    root.style.justifyContent='center';
+    root.style.pointerEvents='none';
+    root.style.zIndex='99999';
+    document.body.appendChild(root);
+  }
   const el=document.createElement('div');
   el.className='toast';
   el.textContent=msg;
@@ -230,6 +243,31 @@ function bindSettings(){
   document.getElementById('btn-undo').onclick=undo;
   document.getElementById('btn-clear').onclick=clearKumbha;
   document.getElementById('btn-new').onclick=startNewPrayoga;
+
+  const elAxyapatra=document.getElementById('set-axyapatra');
+  const elTargetUsd=document.getElementById('set-target-usd');
+  const elTargetPct=document.getElementById('set-target-pct');
+
+  if(elAxyapatra && elTargetUsd && elTargetPct){
+    elTargetUsd.addEventListener('input',e=>{
+      const axy=parseFloat(elAxyapatra.value)||0;
+      const usd=parseFloat(e.target.value)||0;
+      if(axy>0) elTargetPct.value=((usd/axy)*100).toFixed(2);
+    });
+
+    elTargetPct.addEventListener('input',e=>{
+      const axy=parseFloat(elAxyapatra.value)||0;
+      const pct=parseFloat(e.target.value)||0;
+      if(axy>0) elTargetUsd.value=((pct/100)*axy).toFixed(2);
+    });
+
+    elAxyapatra.addEventListener('input',()=>{
+      const axy=parseFloat(elAxyapatra.value)||0;
+      const usd=parseFloat(elTargetUsd.value)||0;
+      if(axy>0 && usd>=0) elTargetPct.value=((usd/axy)*100).toFixed(2);
+    });
+  }
+
   document.getElementById('btn-apply-yantra').onclick=()=>{
     appState.startAxyapatra=parseInt(document.getElementById('set-axyapatra').value)||30000;
     settings.targetUsd=parseInt(document.getElementById('set-target-usd').value)||500;
