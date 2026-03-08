@@ -1,97 +1,44 @@
 
-:root{
---bg:#060b16;
---card:#0f1b2e;
---gold:#f5c542;
---text:#e6edf6;
---muted:#9fb0c9;
---accent:#1f2f4a;
-}
-
-*{box-sizing:border-box;margin:0;padding:0}
-
 body{
-background:radial-gradient(circle at 20% 20%,rgba(245,197,66,0.05),transparent),
-linear-gradient(#060b16,#03060c);
-font-family:Segoe UI,Roboto,Arial;
-color:var(--text);
+font-family:Segoe UI;
+background:#050a16;
+color:white;
+margin:0;
 }
 
-#app-container{padding:12px;padding-bottom:90px}
-
-/* HEADER CARD */
+#app-container{
+padding:14px;
+padding-bottom:90px;
+}
 
 .top-header{
-background:linear-gradient(145deg,#0f1b2e,#0a1322);
+background:#0e1a2f;
 border-radius:20px;
-padding:18px;
-margin-bottom:16px;
-box-shadow:0 10px 30px rgba(0,0,0,.6);
+padding:20px;
+margin-bottom:18px;
 }
 
 .header-top{
 display:flex;
 justify-content:space-between;
-align-items:center;
-margin-bottom:10px;
-}
-
-.header-left h1{
-font-size:1.1rem;
-font-weight:600;
-}
-
-.version{
-font-size:.75rem;
-color:var(--muted);
-}
-
-.gradient-box{
-background:#17263f;
-padding:6px 10px;
-border-radius:10px;
-font-size:.8rem;
-color:#cfe0ff;
-}
-
-.header-center{
-text-align:center;
-margin-top:10px;
-}
-
-.header-center h2{
-font-size:.8rem;
-letter-spacing:2px;
-color:var(--muted);
-margin-bottom:5px;
 }
 
 .live-bankroll{
 font-size:2.6rem;
-font-weight:700;
-color:var(--gold);
-text-shadow:0 0 20px rgba(245,197,66,.5);
+color:#f5c542;
+text-align:center;
 }
-
-/* KEYPADS */
 
 .keypads-container{
 display:flex;
 gap:12px;
-margin-bottom:16px;
 }
 
 .keypad-panel{
 flex:1;
-background:var(--card);
+background:#0c1629;
 border-radius:20px;
 padding:16px;
-box-shadow:0 8px 25px rgba(0,0,0,.6);
-}
-
-.keypad-panel h3{
-margin-bottom:12px;
-font-size:1rem;
 }
 
 .grid-keypad{
@@ -101,161 +48,35 @@ gap:10px;
 }
 
 .num-btn{
-background:var(--accent);
-border-radius:16px;
+background:#18263f;
 border:none;
-padding:18px 0;
+border-radius:18px;
+padding:18px;
+color:white;
 font-size:1.2rem;
-font-weight:600;
-color:white;
-transition:.15s;
 }
-
-.num-btn:active{
-transform:scale(.9);
-background:var(--gold);
-color:black;
-}
-
-/* PLAN CARD */
-
-.ykt-panel{
-background:var(--card);
-border-radius:20px;
-padding:16px;
-margin-bottom:16px;
-box-shadow:0 8px 25px rgba(0,0,0,.6);
-font-family:monospace;
-}
-
-.ykt-row{
-margin:4px 0;
-}
-
-/* CONTROLS */
-
-.controls-panel{
-display:flex;
-gap:10px;
-margin-bottom:16px;
-}
-
-.action-btn{
-flex:1;
-padding:14px;
-border:none;
-border-radius:16px;
-background:#1a2944;
-color:white;
-font-weight:600;
-}
-
-.action-btn:active{
-background:var(--gold);
-color:black;
-}
-
-/* CHAKRA */
-
-.chakra-panel{
-background:var(--card);
-border-radius:20px;
-padding:16px;
-text-align:center;
-margin-bottom:16px;
-}
-
-/* NAVIGATION */
 
 .bottom-nav{
 position:fixed;
 bottom:10px;
 left:10px;
 right:10px;
-background:#0b1628;
+background:#0c162b;
 border-radius:30px;
 padding:8px;
 display:flex;
 gap:6px;
-overflow-x:auto;
 }
 
 .nav-btn{
-background:#14233c;
+background:#14233e;
 border:none;
 padding:10px 14px;
 border-radius:20px;
-font-size:.8rem;
-color:#c6d6f3;
-white-space:nowrap;
-}
-
-.nav-btn.active{
-background:var(--gold);
-color:black;
-font-weight:600;
-}
-
-/* GENERIC SCREENS */
-
-.screen{display:none}
-.screen.active{display:block}
-
-/* TABLE */
-
-table{
-width:100%;
-border-collapse:collapse;
-}
-
-th,td{
-padding:10px;
-border-bottom:1px solid #1e2b45;
-font-size:.85rem;
-}
-
-th{color:var(--gold)}
-
-/* SETTINGS */
-
-#settings-form{
-background:var(--card);
-padding:18px;
-border-radius:20px;
-box-shadow:0 8px 25px rgba(0,0,0,.6);
-}
-
-.form-group{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:12px;
-}
-
-.form-group input,.form-group select{
-background:#16243d;
-border:none;
-border-radius:10px;
-padding:6px 10px;
 color:white;
 }
 
-/* TOAST */
-
-#toast-root{
-position:fixed;
-top:14px;
-left:0;
-right:0;
-display:flex;
-justify-content:center;
-pointer-events:none;
-}
-
-.toast{
-background:var(--gold);
+.nav-btn.active{
+background:#f5c542;
 color:black;
-padding:10px 16px;
-border-radius:30px;
-font-weight:600;
 }
