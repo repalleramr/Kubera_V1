@@ -1,13 +1,14 @@
-
 {
-"name":"KUBERA WARHUNT",
-"short_name":"WARHUNT",
-"start_url":"index.html",
-"display":"standalone",
-"background_color":"#050a14",
-"theme_color":"#0a1128",
-"icons":[
-{"src":"icons/icon-192.png","sizes":"192x192","type":"image/png"},
-{"src":"icons/icon-512.png","sizes":"512x512","type":"image/png"}
-]
+  "name": "KUBERA WARHUNT",
+  "short_name": "KUBERA",
+  "description": "Mobile-first strategy tracker app with mythology themed UI.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050a14",
+  "theme_color": "#0a1128",
+  "icons": [
+    {"src": "icons/icon-192.png", "type": "image/png", "sizes": "192x192"},
+    {"src": "icons/icon-512.png", "type": "image/png", "sizes": "512x512"}
+  ]
 }
