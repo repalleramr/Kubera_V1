@@ -1,20 +1,12 @@
 {
-  "name": "Kubera Warhunt V3 Corrected",
-  "short_name": "WARHUNT V3",
-  "start_url": "./index.html",
+  "name": "Kubera XR V35 Stable",
+  "short_name": "KuberaXR",
   "display": "standalone",
-  "background_color": "#050a14",
-  "theme_color": "#0a1128",
+  "start_url": "./index.html",
+  "background_color": "#0b0f17",
+  "theme_color": "#0b0f17",
   "icons": [
-    {
-      "src": "icons/icon192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    {"src":"icons/icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"icons/icon-512.png","sizes":"512x512","type":"image/png"}
   ]
 }
