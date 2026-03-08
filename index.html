@@ -17,9 +17,7 @@
             <h1>KUBERA 💰 WARHUNT</h1>
             <span class="version">V1 Final</span>
           </div>
-          <div class="header-right gradient-box">
-            Start ₹<span id="start-bankroll">30000</span>
-          </div>
+          <div class="header-right gradient-box">Start ₹<span id="start-bankroll">30000</span></div>
         </div>
         <div class="header-center">
           <h2>LIVE AXYAPATRA</h2>
@@ -31,31 +29,18 @@
         <div class="keypad-panel gold-border">
           <h3>Yaksha</h3>
           <div class="grid-keypad">
-            <button class="num-btn" data-side="Y" data-val="1">1</button>
-            <button class="num-btn" data-side="Y" data-val="2">2</button>
-            <button class="num-btn" data-side="Y" data-val="3">3</button>
-            <button class="num-btn" data-side="Y" data-val="4">4</button>
-            <button class="num-btn" data-side="Y" data-val="5">5</button>
-            <button class="num-btn" data-side="Y" data-val="6">6</button>
-            <button class="num-btn" data-side="Y" data-val="7">7</button>
-            <button class="num-btn" data-side="Y" data-val="8">8</button>
-            <button class="num-btn" data-side="Y" data-val="9">9</button>
+            <button class="num-btn" data-side="Y" data-val="1">1</button><button class="num-btn" data-side="Y" data-val="2">2</button><button class="num-btn" data-side="Y" data-val="3">3</button>
+            <button class="num-btn" data-side="Y" data-val="4">4</button><button class="num-btn" data-side="Y" data-val="5">5</button><button class="num-btn" data-side="Y" data-val="6">6</button>
+            <button class="num-btn" data-side="Y" data-val="7">7</button><button class="num-btn" data-side="Y" data-val="8">8</button><button class="num-btn" data-side="Y" data-val="9">9</button>
             <button class="num-btn zero-btn" data-side="Y" data-val="0">0</button>
           </div>
         </div>
-
         <div class="keypad-panel gold-border">
           <h3>Kinnara</h3>
           <div class="grid-keypad">
-            <button class="num-btn" data-side="K" data-val="1">1</button>
-            <button class="num-btn" data-side="K" data-val="2">2</button>
-            <button class="num-btn" data-side="K" data-val="3">3</button>
-            <button class="num-btn" data-side="K" data-val="4">4</button>
-            <button class="num-btn" data-side="K" data-val="5">5</button>
-            <button class="num-btn" data-side="K" data-val="6">6</button>
-            <button class="num-btn" data-side="K" data-val="7">7</button>
-            <button class="num-btn" data-side="K" data-val="8">8</button>
-            <button class="num-btn" data-side="K" data-val="9">9</button>
+            <button class="num-btn" data-side="K" data-val="1">1</button><button class="num-btn" data-side="K" data-val="2">2</button><button class="num-btn" data-side="K" data-val="3">3</button>
+            <button class="num-btn" data-side="K" data-val="4">4</button><button class="num-btn" data-side="K" data-val="5">5</button><button class="num-btn" data-side="K" data-val="6">6</button>
+            <button class="num-btn" data-side="K" data-val="7">7</button><button class="num-btn" data-side="K" data-val="8">8</button><button class="num-btn" data-side="K" data-val="9">9</button>
             <button class="num-btn zero-btn" data-side="K" data-val="0">0</button>
           </div>
         </div>
@@ -74,10 +59,7 @@
       </div>
 
       <div class="chakra-panel gold-border">
-        <div class="chakra-left">
-          <div class="mini-label">CHAKRA</div>
-          <div class="chakra-value" id="current-chakra">0</div>
-        </div>
+        <div class="chakra-left"><div class="mini-label">CHAKRA</div><div class="chakra-value" id="current-chakra">0</div></div>
         <div class="chakra-right">
           <div class="chakra-side-row"><span>Y:</span><span id="chakra-y-active">0</span><span>N:</span><span id="chakra-y-net">₹0</span></div>
           <div class="chakra-side-row"><span>K:</span><span id="chakra-k-active">0</span><span>N:</span><span id="chakra-k-net">₹0</span></div>
@@ -88,21 +70,10 @@
     <section id="vyuha" class="screen">
       <h2 class="screen-title">Vyuha</h2>
       <div class="vyuha-grids">
-        <div class="v-grid-container gold-border">
-          <h3>Yaksha</h3>
-          <div class="vyuha-grid" id="vyuha-y"></div>
-        </div>
-        <div class="v-grid-container gold-border">
-          <h3>Kinnara</h3>
-          <div class="vyuha-grid" id="vyuha-k"></div>
-        </div>
+        <div class="v-grid-container gold-border"><h3>Yaksha</h3><div class="vyuha-grid" id="vyuha-y"></div></div>
+        <div class="v-grid-container gold-border"><h3>Kinnara</h3><div class="vyuha-grid" id="vyuha-k"></div></div>
       </div>
-      <div class="legend gold-border">
-        <span class="legend-item inactive">Inactive</span>
-        <span class="legend-item active">Active</span>
-        <span class="legend-item cap">CAP</span>
-        <span class="legend-item locked">Locked</span>
-      </div>
+      <div class="legend gold-border"><span class="legend-item inactive">Inactive</span><span class="legend-item active">Active</span><span class="legend-item cap">CAP</span><span class="legend-item locked">Locked</span></div>
     </section>
 
     <section id="granth" class="screen">
@@ -113,18 +84,7 @@
         <input type="file" id="file-import" accept=".csv,.json,.xlsx,.xls" hidden>
       </div>
       <div class="table-container gold-border">
-        <table>
-          <thead>
-            <tr>
-              <th>Chakra</th>
-              <th>Yaksha</th>
-              <th>Kinnara</th>
-              <th>Bet</th>
-              <th>Axyapatra</th>
-            </tr>
-          </thead>
-          <tbody id="history-body"></tbody>
-        </table>
+        <table><thead><tr><th>Chakra</th><th>Yaksha</th><th>Kinnara</th><th>Bet</th><th>Axyapatra</th></tr></thead><tbody id="history-body"></tbody></table>
       </div>
     </section>
 
@@ -141,12 +101,7 @@
     <section id="sopana" class="screen">
       <h2 class="screen-title">Sopana</h2>
       <div class="table-container gold-border">
-        <table>
-          <thead>
-            <tr><th>Step</th><th>Bet Amount</th></tr>
-          </thead>
-          <tbody id="ladder-body"></tbody>
-        </table>
+        <table><thead><tr><th>Step</th><th>Bet Amount</th></tr></thead><tbody id="ladder-body"></tbody></table>
       </div>
     </section>
 
@@ -158,42 +113,16 @@
           <div class="setting-block"><label>Target $</label><input type="number" id="set-target-usd" value="500"></div>
           <div class="setting-block"><label>Target %</label><input type="number" id="set-target-pct" value="1.67" step="0.01"></div>
         </div>
-
-        <div class="settings-row one">
-          <div class="setting-block"><label>Stop Loss</label><input type="number" id="set-stop-loss" value="2000"></div>
-        </div>
-
+        <div class="settings-row one"><div class="setting-block"><label>Stop Loss</label><input type="number" id="set-stop-loss" value="2000"></div></div>
         <div class="settings-row three">
           <div class="setting-block"><label>Min</label><input type="number" id="set-min-bet" value="100"></div>
           <div class="setting-block"><label>Max</label><input type="number" id="set-max-bet" value="3000"></div>
-          <div class="setting-block"><label>Multiple</label>
-            <select id="set-multiple">
-              <option value="100" selected>100</option>
-              <option value="500">500</option>
-              <option value="1000">1000</option>
-              <option value="2000">2000</option>
-              <option value="5000">5000</option>
-            </select>
-          </div>
+          <div class="setting-block"><label>Multiple</label><select id="set-multiple"><option value="100" selected>100</option><option value="500">500</option><option value="1000">1000</option><option value="2000">2000</option><option value="5000">5000</option></select></div>
         </div>
-
-        <div class="settings-row one">
-          <div class="setting-block"><label>Target / Number</label><input type="number" id="set-target-number" value="500"></div>
-        </div>
-
-        <div class="settings-row two">
-          <div class="setting-block toggle-block"><label>Double Ladder</label><button type="button" id="set-double-ladder" class="toggle-btn on">ON</button></div>
-          <div class="setting-block"><label>Max Steps</label><input type="number" id="set-max-steps" value="12"></div>
-        </div>
-
-        <div class="settings-row one">
-          <div class="setting-block"><label>Safety Reserve</label><input type="number" id="set-safety" value="20000"></div>
-        </div>
-
-        <div class="settings-row cap-apply">
-          <div class="setting-block toggle-block"><label>CAP Rule</label><button type="button" id="set-cap-rule" class="toggle-btn on">ON</button></div>
-          <button type="button" class="action-btn gold apply-btn" id="btn-apply-yantra">Apply Yantra</button>
-        </div>
+        <div class="settings-row one"><div class="setting-block"><label>Target / Number</label><input type="number" id="set-target-number" value="500"></div></div>
+        <div class="settings-row two"><div class="setting-block toggle-block"><label>Double Ladder</label><button type="button" id="set-double-ladder" class="toggle-btn on">ON</button></div><div class="setting-block"><label>Max Steps</label><input type="number" id="set-max-steps" value="12"></div></div>
+        <div class="settings-row one"><div class="setting-block"><label>Safety Reserve</label><input type="number" id="set-safety" value="20000"></div></div>
+        <div class="settings-row cap-apply"><div class="setting-block toggle-block"><label>CAP Rule</label><button type="button" id="set-cap-rule" class="toggle-btn on">ON</button></div><button type="button" class="action-btn gold apply-btn" id="btn-apply-yantra">Apply Yantra</button></div>
       </div>
     </section>
 
@@ -214,7 +143,6 @@
       <div id="modal-actions" class="modal-actions"></div>
     </div>
   </div>
-
   <script src="app.js"></script>
 </body>
 </html>
