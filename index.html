@@ -1,70 +1,197 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KUBERA WARHUNT V3</title>
-<link rel="stylesheet" href="styles.css">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0a1128">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KUBERA 💰 WARHUNT</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <meta name="theme-color" content="#0a1128">
 </head>
 <body>
+    <div id="app-container">
+        <section id="sangram" class="screen active">
+            <header class="top-header gold-border">
+                <div class="header-top">
+                    <div class="header-left">
+                        <h1>KUBERA 💰 WARHUNT</h1>
+                        <span class="version">V2 Final</span>
+                    </div>
+                    <div class="header-right gradient-box">
+                        Start ₹<span id="start-axyapatra">30000</span>
+                    </div>
+                </div>
+                <div class="risk-meter-container">
+                    <div class="risk-meter-label">AI SYSTEM RISK: <span id="risk-meter-text" style="color:#fff;font-weight:bold;">LOW</span></div>
+                    <div class="risk-meter-bar-bg">
+                        <div id="risk-meter-fill" class="risk-meter-fill low"></div>
+                    </div>
+                </div>
+                <div class="header-center" style="margin-top:15px;">
+                    <h2>LIVE AXYAPATRA</h2>
+                    <div class="live-bankroll glow-text">₹<span id="live-axyapatra">30,000</span></div>
+                </div>
+            </header>
 
-<div id="app">
+            <div id="cap-storm-banner" class="cap-storm-banner">
+                ⚠️ CAP STORM DETECTED [Intensity: <span id="storm-intensity">LOW</span>] ⚠️
+            </div>
 
-<header class="header">
-<h1>KUBERA WARHUNT</h1>
-<div class="bank">₹<span id="bank">30000</span></div>
-</header>
+            <div class="keypads-container">
+                <div class="keypad-panel gold-border" id="yaksha-panel">
+                    <h3>YAKSHA</h3>
+                    <div class="grid-keypad">
+                        <button class="num-btn" data-side="Y" data-val="1">1</button>
+                        <button class="num-btn" data-side="Y" data-val="2">2</button>
+                        <button class="num-btn" data-side="Y" data-val="3">3</button>
+                        <button class="num-btn" data-side="Y" data-val="4">4</button>
+                        <button class="num-btn" data-side="Y" data-val="5">5</button>
+                        <button class="num-btn" data-side="Y" data-val="6">6</button>
+                        <button class="num-btn" data-side="Y" data-val="7">7</button>
+                        <button class="num-btn" data-side="Y" data-val="8">8</button>
+                        <button class="num-btn" data-side="Y" data-val="9">9</button>
+                        <div class="empty"></div>
+                        <button class="num-btn" data-side="Y" data-val="0">0</button>
+                        <div class="empty"></div>
+                    </div>
+                </div>
+                <div class="keypad-panel gold-border" id="kinnara-panel">
+                    <h3>KINNARA</h3>
+                    <div class="grid-keypad">
+                        <button class="num-btn" data-side="K" data-val="1">1</button>
+                        <button class="num-btn" data-side="K" data-val="2">2</button>
+                        <button class="num-btn" data-side="K" data-val="3">3</button>
+                        <button class="num-btn" data-side="K" data-val="4">4</button>
+                        <button class="num-btn" data-side="K" data-val="5">5</button>
+                        <button class="num-btn" data-side="K" data-val="6">6</button>
+                        <button class="num-btn" data-side="K" data-val="7">7</button>
+                        <button class="num-btn" data-side="K" data-val="8">8</button>
+                        <button class="num-btn" data-side="K" data-val="9">9</button>
+                        <div class="empty"></div>
+                        <button class="num-btn" data-side="K" data-val="0">0</button>
+                        <div class="empty"></div>
+                    </div>
+                </div>
+            </div>
 
-<section class="risk">
-<div class="riskbar"><div id="riskfill"></div></div>
-<div id="risktext">LOW RISK</div>
-</section>
+            <div class="ykt-panel gold-border">
+                <div class="ykt-row" id="y-plan">Y <span class="content">--</span></div>
+                <div class="ykt-row" id="k-plan">K <span class="content">--</span></div>
+                <div class="ykt-row" id="t-plan">T (Next Āhuti) <span class="content">0</span></div>
+            </div>
 
-<section class="keypads">
-<div class="pad">
-<h3>YAKSHA</h3>
-<div class="grid" id="padY"></div>
-</div>
-<div class="pad">
-<h3>KINNARA</h3>
-<div class="grid" id="padK"></div>
-</div>
-</section>
+            <div class="controls-panel">
+                <button id="btn-undo" class="action-btn">Undo</button>
+                <button id="btn-clear" class="action-btn">Clear</button>
+                <button id="btn-new" class="action-btn">Prayoga</button>
+            </div>
 
-<section class="panel">
-<div>Chakra: <span id="chakra">1</span></div>
-</section>
+            <div class="chakra-panel gold-border">
+                <h3>CHAKRA PANEL</h3>
+                <div id="chakra-display">Chakra: <span id="current-chakra">1</span></div>
+            </div>
+        </section>
 
-<section class="controls">
-<button id="undo">Undo</button>
-<button id="clear">Clear</button>
-<button id="new">Prayoga</button>
-</section>
+        <section id="vyuha" class="screen">
+            <h2 class="screen-title">VYUHA HEATMAP</h2>
+            <div class="vyuha-grids">
+                <div class="v-grid-container gold-border">
+                    <h3>YAKSHA</h3>
+                    <div class="vyuha-grid" id="vyuha-y"></div>
+                </div>
+                <div class="v-grid-container gold-border">
+                    <h3>KINNARA</h3>
+                    <div class="vyuha-grid" id="vyuha-k"></div>
+                </div>
+            </div>
+        </section>
 
-<section class="settings">
-<h2>YANTRA</h2>
-<label>Coin Size
-<select id="coin">
-<option>10</option>
-<option>50</option>
-<option selected>100</option>
-<option>500</option>
-<option>1000</option>
-</select>
-</label>
-<label>Stop Loss
-<input type="number" id="stoploss" value="10000">
-</label>
-<label>Safety Reserve
-<input type="number" id="safety" value="5000">
-</label>
-</section>
+        <section id="timeline" class="screen">
+            <h2 class="screen-title">CHAKRA TIMELINE</h2>
+            <div class="timeline-container gold-border" id="timeline-body"></div>
+        </section>
 
-</div>
+        <section id="granth" class="screen">
+            <h2 class="screen-title">GRANTH HISTORY</h2>
+            <div class="table-actions">
+                <button class="action-btn" id="btn-import" type="button">Import</button>
+                <button class="action-btn" id="btn-export-granth" type="button">Export</button>
+            </div>
+            <div class="table-container gold-border">
+                <table id="history-table">
+                    <thead>
+                        <tr>
+                            <th>Chakra</th>
+                            <th>Yaksha</th>
+                            <th>Kinnara</th>
+                            <th>Āhuti</th>
+                            <th>Axyapatra</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body"></tbody>
+                </table>
+            </div>
+        </section>
 
-<script src="app.js"></script>
+        <section id="drishti" class="screen">
+            <h2 class="screen-title">DRISHTI ANALYTICS</h2>
+            <div class="analytics-grid">
+                <div class="analytics-card gold-border"><h4>Chakras Played</h4><span class="value" id="stat-rounds">0</span></div>
+                <div class="analytics-card gold-border"><h4>Total Āhuti</h4><span class="value" id="stat-bets">0</span></div>
+                <div class="analytics-card gold-border"><h4>Net Profit</h4><span class="value" id="stat-profit">0</span></div>
+                <div class="analytics-card gold-border"><h4>Max Exposure</h4><span class="value" id="stat-exposure">0</span></div>
+            </div>
+        </section>
+
+        <section id="sopana" class="screen">
+            <h2 class="screen-title">SOPANA LADDER</h2>
+            <div class="table-container gold-border">
+                <table id="ladder-table">
+                    <thead><tr><th>Step</th><th>Āhuti Amount</th></tr></thead>
+                    <tbody id="ladder-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="yantra" class="screen">
+            <h2 class="screen-title">YANTRA SETTINGS</h2>
+            <form id="settings-form" class="gold-border">
+                <div class="form-group"><label>Axyapatra (Start Bankroll)</label><input type="number" id="set-axyapatra" value="30000"></div>
+                <div class="form-group"><label>Target $</label><input type="number" id="set-target-usd" value="1000"></div>
+                <div class="form-group"><label>Target %</label><input type="number" id="set-target-pct" value="10"></div>
+                <div class="form-group"><label>Stop Loss</label><input type="number" id="set-stop-loss" value="10000"></div>
+                <div class="form-group"><label>Min Āhuti</label><input type="number" id="set-min-bet" value="100"></div>
+                <div class="form-group"><label>Max Āhuti</label><input type="number" id="set-max-bet" value="5000"></div>
+                <div class="form-group"><label>Multiple</label><select id="set-multiple"><option value="1">1x</option><option value="2">2x</option><option value="5">5x</option></select></div>
+                <div class="form-group checkbox-group"><label>Double Ladder</label><input type="checkbox" id="set-double-ladder"></div>
+                <div class="form-group"><label>Max Steps</label><input type="number" id="set-max-steps" value="5"></div>
+                <div class="form-group"><label>Safety Reserve</label><input type="number" id="set-safety" value="5000"></div>
+                <div class="form-group checkbox-group"><label>CAP Rule</label><input type="checkbox" id="set-cap-rule" checked></div>
+                <button type="button" class="action-btn" id="btn-apply-yantra" style="width:100%; margin-top:10px;">Apply Yantra</button>
+            </form>
+        </section>
+
+        <section id="medha" class="screen">
+            <h2 class="screen-title">MEDHA AI</h2>
+            <div id="medha-container"></div>
+            <div class="medha-actions controls-panel" style="margin-top:15px;">
+                <button id="btn-export-medha-csv" class="action-btn" type="button">Export AI CSV</button>
+                <button id="btn-clear-medha-archive" class="action-btn" type="button" style="border-color:#ff4500;">Clear Archive</button>
+            </div>
+        </section>
+
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-target="sangram">⚔️ Sangram</button>
+            <button class="nav-btn" data-target="timeline">⏳ Timeline</button>
+            <button class="nav-btn" data-target="vyuha">🛡️ Vyuha</button>
+            <button class="nav-btn" data-target="granth">📜 Granth</button>
+            <button class="nav-btn" data-target="drishti">👁️ Drishti</button>
+            <button class="nav-btn" data-target="sopana">🪜 Sopana</button>
+            <button class="nav-btn" data-target="yantra">⚙️ Yantra</button>
+            <button class="nav-btn" data-target="medha">🧠 Medha</button>
+        </nav>
+    </div>
+    <script src="app.js"></script>
 </body>
 </html>
