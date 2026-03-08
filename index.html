@@ -1,148 +1,70 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>KUBERA WARHUNT</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0a1128">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KUBERA WARHUNT V3</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a1128">
 </head>
 <body>
-  <div id="app-container">
-    <section id="sangram" class="screen active">
-      <header class="top-header gold-border">
-        <div class="header-top">
-          <div class="header-left">
-            <h1>KUBERA 💰 WARHUNT</h1>
-            <span class="version">V1 Final</span>
-          </div>
-          <div class="header-right gradient-box">Start ₹<span id="start-bankroll">30000</span></div>
-        </div>
-        <div class="header-center">
-          <h2>LIVE AXYAPATRA</h2>
-          <div class="live-bankroll glow-text">₹<span id="live-bankroll">30,000</span></div>
-        </div>
-      </header>
 
-      <div class="keypads-container">
-        <div class="keypad-panel gold-border">
-          <h3>Yaksha</h3>
-          <div class="grid-keypad">
-            <button class="num-btn" data-side="Y" data-val="1">1</button><button class="num-btn" data-side="Y" data-val="2">2</button><button class="num-btn" data-side="Y" data-val="3">3</button>
-            <button class="num-btn" data-side="Y" data-val="4">4</button><button class="num-btn" data-side="Y" data-val="5">5</button><button class="num-btn" data-side="Y" data-val="6">6</button>
-            <button class="num-btn" data-side="Y" data-val="7">7</button><button class="num-btn" data-side="Y" data-val="8">8</button><button class="num-btn" data-side="Y" data-val="9">9</button>
-            <button class="num-btn zero-btn" data-side="Y" data-val="0">0</button>
-          </div>
-        </div>
-        <div class="keypad-panel gold-border">
-          <h3>Kinnara</h3>
-          <div class="grid-keypad">
-            <button class="num-btn" data-side="K" data-val="1">1</button><button class="num-btn" data-side="K" data-val="2">2</button><button class="num-btn" data-side="K" data-val="3">3</button>
-            <button class="num-btn" data-side="K" data-val="4">4</button><button class="num-btn" data-side="K" data-val="5">5</button><button class="num-btn" data-side="K" data-val="6">6</button>
-            <button class="num-btn" data-side="K" data-val="7">7</button><button class="num-btn" data-side="K" data-val="8">8</button><button class="num-btn" data-side="K" data-val="9">9</button>
-            <button class="num-btn zero-btn" data-side="K" data-val="0">0</button>
-          </div>
-        </div>
-      </div>
+<div id="app">
 
-      <div class="ykt-panel gold-border">
-        <div class="ykt-row"><span class="ykt-label">Y</span><span class="content" id="y-plan">-</span></div>
-        <div class="ykt-row"><span class="ykt-label">K</span><span class="content" id="k-plan">-</span></div>
-        <div class="ykt-row"><span class="ykt-label">T</span><span class="content" id="t-plan">0</span></div>
-      </div>
+<header class="header">
+<h1>KUBERA WARHUNT</h1>
+<div class="bank">₹<span id="bank">30000</span></div>
+</header>
 
-      <div class="controls-panel">
-        <button id="btn-undo" class="action-btn danger">Undo</button>
-        <button id="btn-clear" class="action-btn neutral">Clear</button>
-        <button id="btn-new" class="action-btn gold">New</button>
-      </div>
+<section class="risk">
+<div class="riskbar"><div id="riskfill"></div></div>
+<div id="risktext">LOW RISK</div>
+</section>
 
-      <div class="chakra-panel gold-border">
-        <div class="chakra-left"><div class="mini-label">CHAKRA</div><div class="chakra-value" id="current-chakra">0</div></div>
-        <div class="chakra-right">
-          <div class="chakra-side-row"><span>Y:</span><span id="chakra-y-active">0</span><span>N:</span><span id="chakra-y-net">₹0</span></div>
-          <div class="chakra-side-row"><span>K:</span><span id="chakra-k-active">0</span><span>N:</span><span id="chakra-k-net">₹0</span></div>
-        </div>
-      </div>
-    </section>
+<section class="keypads">
+<div class="pad">
+<h3>YAKSHA</h3>
+<div class="grid" id="padY"></div>
+</div>
+<div class="pad">
+<h3>KINNARA</h3>
+<div class="grid" id="padK"></div>
+</div>
+</section>
 
-    <section id="vyuha" class="screen">
-      <h2 class="screen-title">Vyuha</h2>
-      <div class="vyuha-grids">
-        <div class="v-grid-container gold-border"><h3>Yaksha</h3><div class="vyuha-grid" id="vyuha-y"></div></div>
-        <div class="v-grid-container gold-border"><h3>Kinnara</h3><div class="vyuha-grid" id="vyuha-k"></div></div>
-      </div>
-      <div class="legend gold-border"><span class="legend-item inactive">Inactive</span><span class="legend-item active">Active</span><span class="legend-item cap">CAP</span><span class="legend-item locked">Locked</span></div>
-    </section>
+<section class="panel">
+<div>Chakra: <span id="chakra">1</span></div>
+</section>
 
-    <section id="granth" class="screen">
-      <h2 class="screen-title">Granth</h2>
-      <div class="table-actions">
-        <button class="action-btn neutral" id="btn-import">Import</button>
-        <button class="action-btn gold" id="btn-export">Export</button>
-        <input type="file" id="file-import" accept=".csv,.json,.xlsx,.xls" hidden>
-      </div>
-      <div class="table-container gold-border">
-        <table><thead><tr><th>Chakra</th><th>Yaksha</th><th>Kinnara</th><th>Bet</th><th>Axyapatra</th></tr></thead><tbody id="history-body"></tbody></table>
-      </div>
-    </section>
+<section class="controls">
+<button id="undo">Undo</button>
+<button id="clear">Clear</button>
+<button id="new">Prayoga</button>
+</section>
 
-    <section id="drishti" class="screen">
-      <h2 class="screen-title">Drishti</h2>
-      <div class="analytics-grid">
-        <div class="analytics-card gold-border"><h4>Rounds Played</h4><span class="value" id="stat-rounds">0</span></div>
-        <div class="analytics-card gold-border"><h4>Total Bets</h4><span class="value" id="stat-bets">₹0</span></div>
-        <div class="analytics-card gold-border"><h4>Net Profit</h4><span class="value" id="stat-profit">₹0</span></div>
-        <div class="analytics-card gold-border"><h4>Max Exposure</h4><span class="value" id="stat-exposure">₹0</span></div>
-      </div>
-    </section>
+<section class="settings">
+<h2>YANTRA</h2>
+<label>Coin Size
+<select id="coin">
+<option>10</option>
+<option>50</option>
+<option selected>100</option>
+<option>500</option>
+<option>1000</option>
+</select>
+</label>
+<label>Stop Loss
+<input type="number" id="stoploss" value="10000">
+</label>
+<label>Safety Reserve
+<input type="number" id="safety" value="5000">
+</label>
+</section>
 
-    <section id="sopana" class="screen">
-      <h2 class="screen-title">Sopana</h2>
-      <div class="table-container gold-border">
-        <table><thead><tr><th>Step</th><th>Bet Amount</th></tr></thead><tbody id="ladder-body"></tbody></table>
-      </div>
-    </section>
+</div>
 
-    <section id="yantra" class="screen">
-      <h2 class="screen-title">Yantra</h2>
-      <div id="settings-form" class="gold-border settings-wrap">
-        <div class="settings-row three">
-          <div class="setting-block"><label>Axyapatra</label><input type="number" id="set-axyapatra" value="30000"></div>
-          <div class="setting-block"><label>Target $</label><input type="number" id="set-target-usd" value="500"></div>
-          <div class="setting-block"><label>Target %</label><input type="number" id="set-target-pct" value="1.67" step="0.01"></div>
-        </div>
-        <div class="settings-row one"><div class="setting-block"><label>Stop Loss</label><input type="number" id="set-stop-loss" value="2000"></div></div>
-        <div class="settings-row three">
-          <div class="setting-block"><label>Min</label><input type="number" id="set-min-bet" value="100"></div>
-          <div class="setting-block"><label>Max</label><input type="number" id="set-max-bet" value="3000"></div>
-          <div class="setting-block"><label>Multiple</label><select id="set-multiple"><option value="100" selected>100</option><option value="500">500</option><option value="1000">1000</option><option value="2000">2000</option><option value="5000">5000</option></select></div>
-        </div>
-        <div class="settings-row one"><div class="setting-block"><label>Target / Number</label><input type="number" id="set-target-number" value="500"></div></div>
-        <div class="settings-row two"><div class="setting-block toggle-block"><label>Double Ladder</label><button type="button" id="set-double-ladder" class="toggle-btn on">ON</button></div><div class="setting-block"><label>Max Steps</label><input type="number" id="set-max-steps" value="12"></div></div>
-        <div class="settings-row one"><div class="setting-block"><label>Safety Reserve</label><input type="number" id="set-safety" value="20000"></div></div>
-        <div class="settings-row cap-apply"><div class="setting-block toggle-block"><label>CAP Rule</label><button type="button" id="set-cap-rule" class="toggle-btn on">ON</button></div><button type="button" class="action-btn gold apply-btn" id="btn-apply-yantra">Apply Yantra</button></div>
-      </div>
-    </section>
-
-    <nav class="bottom-nav">
-      <button class="nav-btn active" data-target="sangram">Sangram</button>
-      <button class="nav-btn" data-target="vyuha">Vyuha</button>
-      <button class="nav-btn" data-target="granth">Granth</button>
-      <button class="nav-btn" data-target="drishti">Drishti</button>
-      <button class="nav-btn" data-target="sopana">Sopana</button>
-      <button class="nav-btn" data-target="yantra">Yantra</button>
-    </nav>
-  </div>
-
-  <div id="modal-overlay" class="modal-overlay hidden">
-    <div class="modal-card gold-border">
-      <h3 id="modal-title">Notice</h3>
-      <div id="modal-message" class="modal-message"></div>
-      <div id="modal-actions" class="modal-actions"></div>
-    </div>
-  </div>
-  <script src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
