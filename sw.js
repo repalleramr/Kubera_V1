@@ -1,1 +1,8 @@
-const CACHE='warhunt-v3-corrected';const URLS=['./','./index.html','./styles.css','./app.js','./manifest.json','./icons/icon192.png','./icons/icon512.png'];self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(URLS)));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim());});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));});
+
+const CACHE='warhunt-cache';
+self.addEventListener('install',e=>{
+e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','index.html','styles.css','app.js','manifest.json'])));
+});
+self.addEventListener('fetch',e=>{
+e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));
+});
