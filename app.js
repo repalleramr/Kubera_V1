@@ -8,6 +8,7 @@ const defaultSettings = {
   max: 3000,
   coin: 100,
   targetNum: 500,
+  doubleLadder: 'off',
   keypadMode: 'combined',
   maxSteps: 30,
   reserve: 20000,
@@ -31,20 +32,40 @@ function createSide(){
   for(let i=1;i<=9;i++) s[i] = freshNumber();
   return s;
 }
+function roundUpToCoin(value, coin){
+  return Math.max(coin, Math.ceil(value / coin) * coin);
+}
+
 function buildLadder(settings){
   const rows = [];
   let cumulative = 0;
-  let bet = settings.min;
+  let bet = roundUpToCoin(settings.min, settings.coin);
+  let currentLevel = bet;
+
   for(let step=1; step<=settings.maxSteps; step++){
     if(step > 1){
-      const prevLoss = rows[rows.length - 1].ifLoseTotal * -1;
-      const prevBet = rows[rows.length - 1].bet;
-      const canStay = (prevBet * 9) - prevLoss >= settings.targetNum;
-      bet = canStay ? prevBet : Math.min(settings.max, prevBet * 2);
-      bet = Math.ceil(bet / settings.coin) * settings.coin;
-      bet = Math.min(settings.max, bet);
+      const previousLoss = cumulative;
+      const targetPerNumber = settings.targetNum;
+      const hitsTarget = (bet * 8) - previousLoss >= targetPerNumber;
+
+      if(!hitsTarget){
+        if(settings.doubleLadder === 'on'){
+          currentLevel = Math.min(settings.max, roundUpToCoin(currentLevel * 2, settings.coin));
+          bet = currentLevel;
+        } else {
+          let probe = bet;
+          while((probe * 8) - previousLoss < targetPerNumber && probe < settings.max){
+            probe = Math.min(settings.max, roundUpToCoin(probe + settings.coin, settings.coin));
+          }
+          bet = probe;
+          currentLevel = bet;
+        }
+      }
     }
+
+    bet = Math.min(settings.max, roundUpToCoin(bet, settings.coin));
     cumulative += bet;
+
     rows.push({
       step: `S${step}`,
       bet,
@@ -53,6 +74,7 @@ function buildLadder(settings){
       ifLoseTotal: -cumulative
     });
   }
+
   return rows;
 }
 function freshState(){
@@ -137,35 +159,6 @@ function showToast(title, text, kind=''){
   setTimeout(() => el.remove(), 3800);
 }
 
-function injectKeyGlowStyles(){
-  if(document.getElementById('kubera-keyglow-style')) return;
-  const style = document.createElement('style');
-  style.id = 'kubera-keyglow-style';
-  style.textContent = `
-    .tile {
-      transition: border-color .15s ease, box-shadow .15s ease, transform .1s ease;
-    }
-    .tile.key-glow {
-      border-color: rgba(246, 198, 107, 0.95) !important;
-      box-shadow:
-        0 0 0 1px rgba(246, 198, 107, 0.55),
-        0 0 12px rgba(246, 198, 107, 0.45),
-        0 0 22px rgba(246, 140, 0, 0.22),
-        inset 0 0 10px rgba(246, 198, 107, 0.12);
-      transform: scale(0.98);
-    }
-  `;
-  document.head.appendChild(style);
-}
-
-function glowKey(el){
-  if(!el) return;
-  el.classList.remove('key-glow');
-  void el.offsetWidth;
-  el.classList.add('key-glow');
-  setTimeout(() => el.classList.remove('key-glow'), 220);
-}
-
 function renderBoards(){
   ['Y','K'].forEach(side => {
     const host = q(side === 'Y' ? 'boardY' : 'boardK');
@@ -181,7 +174,7 @@ function renderBoards(){
       btn.dataset.side = side;
       btn.dataset.num = String(n);
       btn.innerHTML = `<div class="num">${n}</div><div class="meta ${metaClass}">${code}</div>`;
-      btn.addEventListener('click', (e) => handleTap(side, n, e.currentTarget));
+      btn.addEventListener('click', () => handleTap(side, n));
       host.appendChild(btn);
     }
   });
@@ -271,6 +264,7 @@ function renderYantra(){
   q('setMax').value = s.max;
   q('setCoin').value = s.coin;
   q('setTargetNum').value = s.targetNum;
+  q('setDoubleLadder').value = s.doubleLadder || 'off';
   q('setKeypadMode').value = s.keypadMode;
   q('setMaxSteps').value = s.maxSteps;
   q('setReserve').value = s.reserve;
@@ -339,10 +333,10 @@ function undoLast(){
   showToast('CHAKRA PUNARAVRITTI', 'Last chakra reverted');
 }
 
-function handleTap(side, num, el){
-  glowKey(el);
+function handleTap(side, num){
   if(state.settings.keypadMode === 'combined'){
     pending[side] = num;
+    showToast(`${side} SELECTED`, `${side}${num} ready`);
     const other = side === 'Y' ? 'K' : 'Y';
     if(pending.Y !== null && pending.K !== null){
       processRound('both', { Y: pending.Y, K: pending.K });
@@ -485,6 +479,7 @@ function setupControls(){
     s.max = Number(q('setMax').value) || 3000;
     s.coin = Number(q('setCoin').value) || 100;
     s.targetNum = Number(q('setTargetNum').value) || 500;
+    s.doubleLadder = q('setDoubleLadder').value;
     s.keypadMode = q('setKeypadMode').value;
     s.maxSteps = Number(q('setMaxSteps').value) || 30;
     s.reserve = Number(q('setReserve').value) || 20000;
@@ -582,7 +577,6 @@ function setupInstall(){
   }
 }
 
-injectKeyGlowStyles();
 setupInstall();
 setupTabs();
 setupControls();
