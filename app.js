@@ -1,51 +1,655 @@
-const STATE_KEY='baccaratxr_v34_final';
-const blank=n=>({num:n,status:'inactive',misses:0,losses:0,closedProfit:0,capHit:false,recoveryMode:false,recoveryStep:0,secondRepeatTriggered:false});
-const mkSide=()=>{const o={}; for(let i=1;i<=9;i++) o[i]=blank(i); return o;};
-const DEF={settings:{startingBankroll:30000,targetAmount:5000,targetPercent:16.67,minBet:100,maxBet:3000,multiple:100,profitTarget:500,safetyReserve:20000},bankroll:30000,pending:{player:null,banker:null},rounds:[],lastShoeSummary:null,player:mkSide(),banker:mkSide(),ladder:[],alerts:[]};
-let s; const $=id=>document.getElementById(id); const money=v=>'₹'+Number(v||0).toFixed(0); const kfmt=v=>{v=Number(v||0); if(v>=1000){let x=(v/1000).toFixed(1); if(x.endsWith('.0')) x=x.slice(0,-2); return x+'k';} return String(v);}; const msg=(t,m)=>Object.keys(m).reduce((a,k)=>a.replaceAll('{'+k+'}',m[k]),t);
-const I18N={clearWarn:'⚠ Clear Current Shoe?\n\nAll round history and active numbers will be reset.',winSingle:'💰 CASHED IN!\n\n{SIDE} {X} hit at Step {S}.\n\nProfit locked: ₹{P}\n\nOne soldier down.\nMoving to the next target 🎯',winDouble:'🔥 DOUBLE STRIKE!\n\nPlayer {PX} hit at Step {PS}.\nBanker {BX} hit at Step {BS}.\n\nTwo targets smashed in the same round.\nBeautiful chaos 🎯',capSingle:'🚧 CAP HIT, BOSS!\n\n{SIDE} {X} reached cap.\n\nNow excluded.\nNo more chasing. Cool heads only 😎',capDouble:'🚧 DOUBLE CAP, BOSS!\n\nPlayer {PX} reached cap.\nBanker {BX} reached cap.\n\nBoth ladders hit the roof.\nCool heads only 😎',reactSingle:'♻ BACK IN THE HUNT!\n\n{SIDE} {X} is active again after CAP.\n\nSecond repeat mode started.\nOne more shot before shoe close 😎',reactDouble:'♻ DOUBLE REACTIVATION!\n\nPlayer {PX} and Banker {BX} are back after CAP.\n\nSecond repeat mode started on both sides.\nLate shoe drama begins 😎',round65Single:'⏰ ROUND 65 MODE ON!\n\n{SIDE} {X} didn’t repeat again,\nbut late-shoe recovery has started now.\n\nFinal hunt before shoe close 😎',round65Double:'⏰ ROUND 65 MODE ON!\n\nPlayer {PX} and Banker {BX} didn’t repeat again,\nbut late-shoe recovery has started now.\n\nFinal chase activated 😎',target:'🎉 BOOM! TARGET SMASHED!\n\nYou didn’t gamble…\nYou executed the plan.\n\nProfit locked. Discipline level: PRO.\n\nClose the shoe, take the win,\nand let the casino breathe for a moment 😎'};
-function load(){const raw=localStorage.getItem(STATE_KEY); s=raw?JSON.parse(raw):JSON.parse(JSON.stringify(DEF)); if(!s.alerts) s.alerts=[]; if(!s.pending) s.pending={player:null,banker:null}; if(!s.player) s.player=mkSide(); if(!s.banker) s.banker=mkSide(); for(let i=1;i<=9;i++){ const p=s.player[i]||blank(i), b=s.banker[i]||blank(i); if(typeof p.reactDecisionAsked!=='boolean') p.reactDecisionAsked=false; if(typeof p.lateDecisionAsked!=='boolean') p.lateDecisionAsked=false; if(typeof p.lateQuit!=='boolean') p.lateQuit=false; if(typeof b.reactDecisionAsked!=='boolean') b.reactDecisionAsked=false; if(typeof b.lateDecisionAsked!=='boolean') b.lateDecisionAsked=false; if(typeof b.lateQuit!=='boolean') b.lateQuit=false; s.player[i]=p; s.banker[i]=b;} if(!s.ladder.length) buildLadder();}
-function save(){localStorage.setItem(STATE_KEY,JSON.stringify(s));}
-function buildLadder(){let prior=0; s.ladder=[]; for(let i=1;i<=75;i++){ let b=Math.ceil(Math.max(s.settings.minBet,(s.settings.profitTarget+prior)/8)/s.settings.multiple)*s.settings.multiple; if(i>20 && i<=40){ b=Math.round(b*0.9/s.settings.multiple)*s.settings.multiple; } if(i>40){ b=Math.round(b*0.8/s.settings.multiple)*s.settings.multiple; } if(b>s.settings.maxBet) b=s.settings.maxBet; s.ladder.push(b); prior+=b; }}
-function nextBet(t){if(t.capHit && !t.recoveryMode) return 0; if(t.recoveryMode){return t.recoveryStep<=5?Math.round(s.settings.maxBet/2):s.settings.maxBet;} return s.ladder[Math.min(t.misses,s.ladder.length-1)]||0;}
-function stepOf(t){return t.recoveryMode?('R'+t.recoveryStep):(t.misses+1)}
-function active(which){return Object.values(s[which]).filter(x=>x.status==='active');}
-function targetReached(){return s.bankroll-s.settings.startingBankroll>=s.settings.targetAmount;}
-function queue(text,buttons){s.alerts.push({text,buttons}); save();}
-function modal(text,buttons){$('modalText').innerText=text; const box=$('modalActions'); box.innerHTML=''; buttons.forEach(btn=>{const b=document.createElement('button'); b.className='btn'+(btn.kind?' '+btn.kind:''); b.textContent=btn.label; b.onclick=()=>{$('modal').classList.add('hidden'); if(btn.onClick) btn.onClick();}; box.appendChild(b);}); $('modal').classList.remove('hidden');}
-function flush(){if(!s.alerts.length) return; const a=s.alerts.shift(); save(); modal(a.text,a.buttons||[{label:'OK'}]);}
-function flash(btn, cls){btn.classList.add(cls); setTimeout(()=>btn.classList.remove(cls),180);}
-function noActiveNumbersLeft(){return active('player').length===0 && active('banker').length===0;}
-function triggerCombinedAlerts(events){const wins=events.filter(e=>e.type==='win'); const caps=events.filter(e=>e.type==='cap'); const reacts=events.filter(e=>e.type==='react'); const r65=events.filter(e=>e.type==='r65'); if(wins.length===2){queue(msg(I18N.winDouble,{PX:wins[0].num,PS:wins[0].step,BX:wins[1].num,BS:wins[1].step}),[{label:'NICE!',kind:' gold'}]);} else if(wins.length===1){queue(msg(I18N.winSingle,{SIDE:wins[0].side,X:wins[0].num,S:wins[0].step,P:wins[0].profit}),[{label:'NICE!',kind:' gold'}]);} if(caps.length===2){queue(msg(I18N.capDouble,{PX:caps[0].num,BX:caps[1].num}),[{label:'OK BOSS',kind:' gold'}]);} else if(caps.length===1){queue(msg(I18N.capSingle,{SIDE:caps[0].side,X:caps[0].num}),[{label:'OK BOSS',kind:' gold'}]);} if(reacts.length===2){queue(msg(I18N.reactDouble,{PX:reacts[0].num,BX:reacts[1].num}),[{label:'LET’S GO',kind:' gold'}]);} else if(reacts.length===1){queue(msg(I18N.reactSingle,{SIDE:reacts[0].side,X:reacts[0].num}),[{label:'LET’S GO',kind:' gold'}]);} if(r65.length===2){queue(msg(I18N.round65Double,{PX:r65[0].num,BX:r65[1].num}),[{label:'ATTACK',kind:' gold'}]);} else if(r65.length===1){queue(msg(I18N.round65Single,{SIDE:r65[0].side,X:r65[0].num}),[{label:'ATTACK',kind:' gold'}]);}}
-function startRound65Recovery(which, events){if(targetReached()) return; Object.values(s[which]).forEach(t=>{if(t.capHit && !t.secondRepeatTriggered && !t.recoveryMode && t.status==='excluded'){t.recoveryMode=true; t.recoveryStep=1; t.status='active'; t.secondRepeatTriggered=true; events.push({type:'r65',side:which==='player'?'Player':'Banker',num:t.num});}})}
-function maybeActivateRepeat(which, result, events){
-if(!(result>=1&&result<=9)) return;
-const t=s[which][result];
-if(!t || !t.capHit || t.secondRepeatTriggered || targetReached()) return;
-if(t.lateDecisionAsked || t.lateQuit) return;
-if(!t.reactDecisionAsked){
- t.reactDecisionAsked=true;
- const side=which==='player'?'Player':'Banker';
- const advice=lateRecoveryAdvice(which,t.num);
- queue(`🔁 BACK ON TRACK?\n\n${side} ${t.num} tried to come back after CAP.\n\nContinue = start betting this number from the NEXT round as a fresh active.\nQuit = no more betting on this number in this shoe.\n\n${advice.suggestion}\nSeen this shoe: ${advice.seen} time(s)\nEstimated rounds left: ${advice.roundsLeft}\n\n${advice.note}`,[{label:'Quit',kind:'',onClick:()=>quitLateRecovery(which,t.num)},{label:'Continue',kind:' gold',onClick:()=>activateLateRecovery(which,t.num,'react')}]);
+
+const STORAGE_KEY = 'kubera-warhunt-state-v1';
+const screenTitles = {
+  sangram:'⚔ SANGRAM', vyuha:'🛡 VYUHA', granth:'📜 GRANTH', drishti:'👁 DRISHTI',
+  sopana:'🪜 SOPANA', yantra:'⚙ YANTRA', medha:'🧠 MEDHA'
+};
+
+let deferredPrompt = null;
+
+const defaultConfig = {
+  startBankroll: 30000,
+  targetAmount: 500,
+  targetPct: 1.67,
+  stopLoss: 2000,
+  minBet: 100,
+  maxBet: 3000,
+  coinSize: 100,
+  targetPerNumber: 500,
+  doubleLadder: 'on',
+  maxSteps: 12,
+  safetyReserve: 20000,
+  capRule: 'on'
+};
+
+function roundToCoin(n, coin) {
+  return Math.ceil(n / coin) * coin;
 }
+function formatMoney(n){
+  const sign = n < 0 ? '-' : '';
+  return `${sign}₹ ${Math.abs(n).toLocaleString('en-IN')}`;
 }
-function processSide(which,result,events){const board=s[which]; const list=active(which); let net=0, exposure=list.reduce((a,t)=>a+nextBet(t),0); const target=board[result]; const isZero=Number(result)===0; const isDeadRound=isZero || (target && (target.status==='excluded' || (target.capHit && !target.recoveryMode && target.status!=='active'))); if(isDeadRound){list.forEach(t=>{const b=nextBet(t); net-=b; t.losses+=b; if(t.recoveryMode){t.recoveryStep+=1; if(t.recoveryStep>10){t.status='excluded'; t.recoveryMode=false;}} else {t.misses+=1; if(t.misses+1>s.ladder.length && !t.capHit){t.capHit=true; t.status='excluded'; events.push({type:'cap',side:which==='player'?'Player':'Banker',num:t.num});}}}); return {net,exposure};} if(target && target.status==='inactive' && !target.capHit){list.forEach(t=>{const b=nextBet(t); net-=b; t.losses+=b; if(t.recoveryMode){t.recoveryStep+=1; if(t.recoveryStep>10){t.status='excluded'; t.recoveryMode=false;}} else {t.misses+=1; if(t.misses+1>s.ladder.length && !t.capHit){t.capHit=true; t.status='excluded'; events.push({type:'cap',side:which==='player'?'Player':'Banker',num:t.num});}}}); target.status='active'; target.misses=0; target.losses=0; return {net,exposure};} if(target && target.status==='active'){list.forEach(t=>{const b=nextBet(t); if(t.num===Number(result)){net+=8*b; const profit=(8*b)-t.losses; events.push({type:'win',side:which==='player'?'Player':'Banker',num:t.num,step:(t.recoveryMode?t.recoveryStep:t.misses+1),profit}); t.closedProfit=profit; t.status='excluded'; t.recoveryMode=false;} else {net-=b; t.losses+=b; if(t.recoveryMode){t.recoveryStep+=1; if(t.recoveryStep>10){t.status='excluded'; t.recoveryMode=false;}} else {t.misses+=1; if(t.misses+1>s.ladder.length && !t.capHit){t.capHit=true; t.status='excluded'; events.push({type:'cap',side:which==='player'?'Player':'Banker',num:t.num});}}}}); return {net,exposure};} return {net,exposure};}
-function commit(p,b){const roundNo=s.rounds.length+1; const events=[]; maybeActivateRepeat('player',Number(p),events); maybeActivateRepeat('banker',Number(b),events); if(roundNo>=65){startRound65Recovery('player',events); startRound65Recovery('banker',events);} const pr=processSide('player',Number(p),events), br=processSide('banker',Number(b),events); const total=pr.net+br.net; s.bankroll+=total; s.rounds.push({p:Number(p),b:Number(b),pNet:pr.net,bNet:br.net,total,bankroll:s.bankroll}); s.pending={player:null,banker:null}; triggerCombinedAlerts(events); save(); render(); if(targetReached()) queue(I18N.target,[{label:'Close Shoe',kind:' gold',onClick:()=>clearShoe(false)},{label:'Keep Playing'}]); setTimeout(flush,20);}
-function setPending(which,val){s.pending[which]=val; if(s.pending.player!==null&&s.pending.banker!==null) commit(s.pending.player,s.pending.banker); save(); renderPlay();}
-function buildGrouped(which){const list=active(which); if(!list.length) return '—'; const groups={}; list.forEach(t=>{const b=nextBet(t); if(!groups[b]) groups[b]=[]; groups[b].push(`${t.num}(S${stepOf(t)})`);}); return Object.keys(groups).sort((a,b)=>Number(b)-Number(a)).map(b=>`${kfmt(b)} on ${groups[b].join(', ')}`).join(' | ');}
-function renderPlay(){ $('startText').textContent=s.settings.startingBankroll; $('bankrollText').textContent=s.bankroll; const p=active('player'), b=active('banker'); const pExp=p.reduce((a,t)=>a+nextBet(t),0), bExp=b.reduce((a,t)=>a+nextBet(t),0); if($('playerMicro')) $('playerMicro').textContent=''; if($('bankerMicro')) $('bankerMicro').textContent=''; $('playerGrouped').textContent=buildGrouped('player'); $('bankerGrouped').textContent=buildGrouped('banker'); $('totalGrouped').textContent=kfmt(pExp+bExp); $('roundCount').textContent=s.rounds.length; $('pActive').textContent=p.length; $('bActive').textContent=b.length; $('pNext').textContent=money(pExp); $('bNext').textContent=money(bExp); $('pExposure').textContent=money(pExp); $('bExposure').textContent=money(bExp); $('tExposure').textContent=money(pExp+bExp); $('last5').textContent=s.rounds.length?s.rounds.slice(-5).map(r=>`P${r.p}-B${r.b}`).join('  '):'—'; const risk=Math.min(100,((pExp+bExp)/Math.max(1,s.bankroll))*100); $('riskFill').style.width=Math.max(4,risk)+'%'; $('riskFill').style.background=risk<10?'#2fd07a':risk<25?'#f0c450':'#ef5d66'; $('riskText').textContent=risk<10?'LOW':risk<25?'MED':'HIGH';}
-function tileHTML(t){let cls='inactive', state='INACTIVE', bet='LOCKED'; if(t.status==='active'){cls='active-t'; state=t.recoveryMode?'ATTACK':'ACTIVE'; bet=`S${stepOf(t)} • ${money(nextBet(t))}`;} else if(t.capHit){cls='cap'; state='CAP HIT'; bet=t.secondRepeatTriggered?'USED':'WAITING';} else if(t.status==='excluded'){cls='excluded'; state='EXCLUDED'; bet=t.closedProfit?`WIN ${money(t.closedProfit)}`:'LOCKED';} return `<div class="tile ${cls}"><div class="num">${t.num}</div><div class="state">${state}</div><div class="bet">${bet}</div></div>`;}
-function renderBoard(){ $('playerBoard').innerHTML=Array.from({length:9},(_,i)=>tileHTML(s.player[i+1])).join(''); $('bankerBoard').innerHTML=Array.from({length:9},(_,i)=>tileHTML(s.banker[i+1])).join(''); }
-function renderHistory(){ const body=$('historyBody'); if(!s.rounds.length){body.innerHTML='<tr><td colspan="7" class="muted">No rounds yet</td></tr>'; return;} body.innerHTML=[...s.rounds].reverse().map((r,idx)=>`<tr><td>${s.rounds.length-idx}</td><td>${r.p}</td><td>${r.b}</td><td>${money(r.pNet)}</td><td>${money(r.bNet)}</td><td>${money(r.total)}</td><td>${money(r.bankroll)}</td></tr>`).join(''); }
-function renderAnalytics(){ $('aRounds').textContent=s.rounds.length; $('aBankroll').textContent=money(s.bankroll); const pExp=active('player').reduce((a,t)=>a+nextBet(t),0), bExp=active('banker').reduce((a,t)=>a+nextBet(t),0), exp=pExp+bExp; $('volatilityText').textContent=exp<500?'LOW':exp<2000?'MED':'HIGH'; $('attackModeText').textContent=Object.values(s.player).concat(Object.values(s.banker)).some(t=>t.recoveryMode)?'Attack':'Normal'; $('hotZone').textContent=s.rounds.length<5?'Step 1–3':s.rounds.length<12?'Step 4–7':'Step 8+'; $('pressureScore').textContent=exp<500?'Low':exp<2000?'Medium':'High'; $('safetySignal').textContent=s.bankroll < s.settings.startingBankroll/2 ? 'Warning' : 'Safe'; if(!s.lastShoeSummary){$('nextShoeBox').innerHTML='<div class="muted">No cleared shoe summary yet.</div>'; return;} const x=s.lastShoeSummary; $('nextShoeBox').innerHTML=`<div class="suggest-row"><span>Start</span><span>${money(x.base)}</span></div><div class="suggest-row"><span>${x.type==='profit'?'Profit':'Loss'}</span><span>${money(x.delta)}</span></div><div class="suggest-row"><span>Safety</span><span>${money(x.safety)}</span></div><div class="suggest-row"><strong>Suggested</strong><strong>${money(x.suggested)}</strong></div>`; }
-function renderLadder(){ const wrap=$('ladderList'); wrap.innerHTML=''; let prev=0; s.ladder.forEach((bet,i)=>{const row=document.createElement('div'); row.className='ladder-row'; row.innerHTML=`<div>${i+1}</div><input value="${bet}" data-i="${i}"><div>${money(8*bet-prev)}</div>`; wrap.appendChild(row); prev+=bet;}); const inputs=[...wrap.querySelectorAll('input')]; inputs.forEach((inp,idx)=>{inp.onfocus=()=>inp.select(); inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault(); const n=inputs[idx+1]; if(n){n.focus(); n.select();} else inp.blur();}}; inp.oninput=()=>{s.ladder[idx]=Number(inp.value||0); save(); let p=0; inputs.forEach((x,i)=>{const v=Number(x.value||0); s.ladder[i]=v; wrap.children[i].children[2].textContent=money(8*v-p); p+=v;});};}); }
-function renderSettings(){ $('startInput').value=s.settings.startingBankroll; $('targetAmountInput').value=s.settings.targetAmount; $('targetPercentInput').value=s.settings.targetPercent; $('minInput').value=s.settings.minBet; $('maxInput').value=s.settings.maxBet; $('multipleInput').value=s.settings.multiple; $('profitInput').value=s.settings.profitTarget; $('safetyInput').value=s.settings.safetyReserve; }
-function render(){ renderPlay(); renderBoard(); renderHistory(); renderAnalytics(); renderLadder(); renderSettings(); }
-function closeSummary(store=true){ const delta=s.bankroll-s.settings.startingBankroll, type=delta>=0?'profit':'loss', suggested=type==='profit'?s.settings.startingBankroll+s.settings.safetyReserve:s.settings.startingBankroll+Math.abs(delta)+s.settings.safetyReserve; if(store) s.lastShoeSummary={type,base:s.settings.startingBankroll,delta:Math.abs(delta),safety:s.settings.safetyReserve,suggested}; }
-function clearShoe(withSummary=true){ if(withSummary) closeSummary(true); s.bankroll=s.settings.startingBankroll; s.rounds=[]; s.pending={player:null,banker:null}; s.player=mkSide(); s.banker=mkSide(); save(); render(); }
-function rebuildFromRounds(){ const old=JSON.parse(JSON.stringify(s.rounds)); s.bankroll=s.settings.startingBankroll; s.rounds=[]; s.pending={player:null,banker:null}; s.player=mkSide(); s.banker=mkSide(); s.alerts=[]; old.forEach(r=>commit(r.p,r.b)); }
-function saveSettings(){ s.settings.startingBankroll=Number($('startInput').value||30000); s.settings.targetAmount=Number($('targetAmountInput').value||5000); s.settings.targetPercent=Number($('targetPercentInput').value||16.67); s.settings.minBet=Number($('minInput').value||100); s.settings.maxBet=Number($('maxInput').value||3000); s.settings.multiple=Number($('multipleInput').value||100); s.settings.profitTarget=Number($('profitInput').value||500); s.settings.safetyReserve=Number($('safetyInput').value||20000); if(!s.rounds.length) s.bankroll=s.settings.startingBankroll; buildLadder(); save(); render(); }
-function bind(){ [['playerPad','player'],['bankerPad','banker']].forEach(([id,which])=>{const wrap=$(id); [1,2,3,4,5,6,7,8,9,0].forEach(n=>{const b=document.createElement('button'); b.className='key '+which+(n===0?' key-zero':''); b.textContent=String(n); b.onclick=()=>{flash(b,which==='player'?'flash-player':'flash-banker'); setPending(which,n);}; wrap.appendChild(b);});}); document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active')); t.classList.add('active'); const target=document.querySelector(`.screen[data-screen="${t.dataset.tab}"]`); if(target) target.classList.add('active');}); $('undoBtn').onclick=()=>{if(!s.rounds.length) return; s.rounds.pop(); rebuildFromRounds();}; $('clearBtn').onclick=()=>modal(I18N.clearWarn,[{label:'Cancel'},{label:'OK',kind:' gold',onClick:()=>clearShoe(true)}]); $('newBtn').onclick=()=>clearShoe(false); $('autoBuildBtn').onclick=()=>{buildLadder(); save(); renderLadder();}; $('startInput').oninput=()=>{const start=Number($('startInput').value||1), amt=Number($('targetAmountInput').value||0); $('targetPercentInput').value=((amt/start)*100).toFixed(2);}; $('targetAmountInput').oninput=()=>{const start=Number($('startInput').value||1), amt=Number($('targetAmountInput').value||0); $('targetPercentInput').value=((amt/start)*100).toFixed(2);}; $('targetPercentInput').oninput=()=>{const start=Number($('startInput').value||0), pct=Number($('targetPercentInput').value||0); $('targetAmountInput').value=Math.round(start*pct/100);}; $('saveSettingsBtn').onclick=saveSettings; $('csvBtn').onclick=()=>{const csv=['Round,P,B,P Net,B Net,Total,Bankroll',...s.rounds.map((r,i)=>`${i+1},${r.p},${r.b},${r.pNet},${r.bNet},${r.total},${r.bankroll}`)].join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='baccarat_history.csv'; a.click();}; $('pdfBtn').onclick=()=>{const txt=['Baccarat Report',...s.rounds.map((r,i)=>`${i+1} P${r.p} B${r.b} ${r.total} ${r.bankroll}`)].join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([txt],{type:'application/pdf'})); a.download='baccarat_history.pdf'; a.click();}; }
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));}
-document.addEventListener('DOMContentLoaded',()=>{load(); bind(); render();});
+function compactMoney(n){
+  if (Math.abs(n) >= 1000) return `${(n/1000).toFixed(n % 1000 === 0 ? 0 : 1)}k`;
+  return `${n}`;
+}
+function createNumberState(){
+  return {
+    status:'inactive', step:0, phase:1, activationChakra:null,
+    previousLoss:0, currentBet:0, lastWinBet:0, returned:false
+  };
+}
+function createInitialState(){
+  const numbers = {Y:{}, K:{}};
+  ['Y','K'].forEach(side=>{
+    for(let i=1;i<=9;i++) numbers[side][i]=createNumberState();
+  });
+  return {
+    config: {...defaultConfig},
+    liveBankroll: defaultConfig.startBankroll,
+    currentChakra: 1,
+    currentKumbhId: 1,
+    kumbhCounter: 1,
+    kumbhs: [{id:1, rows:[]}],
+    drishti: [],
+    selectedY: null,
+    selectedK: null,
+    lastRoundSnapshot: null,
+    notifications: [],
+    roundExposures: [],
+    lockedNumbers: {Y:new Set(), K:new Set()},
+    numbers
+  };
+}
+let state = loadState();
+
+function serializeState() {
+  const copy = JSON.parse(JSON.stringify(state));
+  copy.lockedNumbers = {Y:[...state.lockedNumbers.Y], K:[...state.lockedNumbers.K]};
+  return copy;
+}
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeState()));
+}
+function loadState(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw) return createInitialState();
+  try{
+    const parsed = JSON.parse(raw);
+    parsed.lockedNumbers = {
+      Y:new Set(parsed.lockedNumbers?.Y || []),
+      K:new Set(parsed.lockedNumbers?.K || [])
+    };
+    return parsed;
+  }catch{
+    return createInitialState();
+  }
+}
+
+function getCurrentKumbh(){
+  let k = state.kumbhs.find(x=>x.id === state.currentKumbhId);
+  if(!k){
+    k = {id:state.currentKumbhId, rows:[]};
+    state.kumbhs.unshift(k);
+  }
+  return k;
+}
+
+function firstLadderBet(step, prevLoss){
+  const cfg = state.config;
+  let bet = cfg.minBet;
+  let prevCandidate = bet;
+  for(let s=1; s<=step; s++){
+    if(s === 1){
+      bet = cfg.minBet;
+    }else{
+      if(cfg.doubleLadder === 'off'){
+        bet = Math.min(cfg.maxBet, roundToCoin(cfg.minBet * Math.pow(2, s-1), cfg.coinSize));
+      }else{
+        const canStay = (prevCandidate * 8) - prevLoss >= cfg.targetPerNumber;
+        if(canStay){
+          bet = prevCandidate;
+        }else{
+          bet = Math.min(cfg.maxBet, roundToCoin(prevCandidate * 2, cfg.coinSize));
+          prevCandidate = bet;
+        }
+      }
+    }
+    prevCandidate = bet;
+  }
+  return Math.min(cfg.maxBet, roundToCoin(bet, cfg.coinSize));
+}
+function getBetForState(numState){
+  const cfg = state.config;
+  if(numState.phase === 2){
+    const start = roundToCoin(cfg.maxBet / 4, cfg.coinSize);
+    if(numState.step <= 5) return Math.min(cfg.maxBet, start);
+    if(numState.step <= 10) return Math.min(cfg.maxBet, start * 2);
+    if(numState.step <= 15) return Math.min(cfg.maxBet, start * 3);
+    return cfg.maxBet;
+  }
+  return firstLadderBet(numState.step, numState.previousLoss);
+}
+function buildLaddersPreview(){
+  const one = document.getElementById('ladderOne');
+  const two = document.getElementById('ladderTwo');
+  one.innerHTML=''; two.innerHTML='';
+  let prevLoss = 0;
+  for(let s=1; s<=state.config.maxSteps; s++){
+    const bet = firstLadderBet(s, prevLoss);
+    const item = document.createElement('div');
+    item.className='ladder-item';
+    item.innerHTML = `<span>S${s}</span><strong>${compactMoney(bet)}</strong>`;
+    one.appendChild(item);
+    prevLoss += bet;
+  }
+  for(let s=1; s<=20; s++){
+    const st = {phase:2, step:s};
+    const bet = getBetForState(st);
+    const item = document.createElement('div');
+    item.className='ladder-item';
+    item.innerHTML = `<span>2S${s}</span><strong>${compactMoney(bet)}</strong>`;
+    two.appendChild(item);
+  }
+}
+
+function showToast(title, msg){
+  const toast = document.getElementById('toast');
+  toast.innerHTML = `<strong>${title}</strong><div>${msg}</div>`;
+  toast.classList.remove('hidden');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=> toast.classList.add('hidden'), 2600);
+}
+
+function initBoards(){
+  ['Y','K'].forEach(side=>{
+    const holder = document.getElementById(`board${side}`);
+    holder.innerHTML = '';
+    for(let i=1;i<=10;i++){
+      const num = i===10 ? 0 : i;
+      const tile = document.createElement('button');
+      tile.className = 'tile' + (num===0 ? ' zero':'');
+      tile.innerHTML = `<div class="tile-number">${num}</div><div class="tile-meta">${side}</div>`;
+      tile.addEventListener('click', ()=>selectResult(side, num));
+      holder.appendChild(tile);
+    }
+  });
+}
+
+function renderBoardsSelection(){
+  ['Y','K'].forEach(side=>{
+    const holder = document.getElementById(`board${side}`);
+    [...holder.children].forEach(btn=>{
+      const num = Number(btn.querySelector('.tile-number').textContent);
+      btn.classList.toggle('selected', state[`selected${side}`] === num);
+    });
+  });
+  document.getElementById('pendingInput').textContent =
+    state.selectedY !== null && state.selectedK !== null
+      ? `Selected Y=${state.selectedY}, K=${state.selectedK}`
+      : 'Select Y and K result';
+}
+
+function selectResult(side, num){
+  state[`selected${side}`] = num;
+  renderBoardsSelection();
+  if(state.selectedY !== null && state.selectedK !== null){
+    processChakra();
+  }
+}
+
+function recordDrishti(record){
+  state.drishti.unshift(record);
+}
+function statusColorForStep(step){
+  return `state-step-${Math.min(step,15)}`;
+}
+function advanceOrCap(side, number, numState){
+  const cfg = state.config;
+  numState.previousLoss += numState.currentBet;
+  if(numState.phase === 1){
+    if(numState.currentBet >= cfg.maxBet && cfg.capRule === 'on'){
+      numState.status = 'cap';
+      numState.step = cfg.maxSteps;
+      recordDrishti({
+        side, number, activationChakra:numState.activationChakra, winChakra:'-',
+        stepsToWin: numState.step, previousLoss:numState.previousLoss, winningBet:'-',
+        netProfitLoss:-numState.previousLoss, status:'CAP'
+      });
+      showToast('CAP', `${side}${number} entered Rekha Bandha`);
+      return;
+    }
+    numState.step += 1;
+    if(numState.step > cfg.maxSteps && cfg.capRule === 'on'){
+      numState.status = 'cap';
+      numState.step = cfg.maxSteps;
+      recordDrishti({
+        side, number, activationChakra:numState.activationChakra, winChakra:'-',
+        stepsToWin:numState.step, previousLoss:numState.previousLoss, winningBet:'-',
+        netProfitLoss:-numState.previousLoss, status:'CAP'
+      });
+      showToast('CAP', `${side}${number} entered Rekha Bandha`);
+      return;
+    }
+    numState.currentBet = getBetForState(numState);
+  }else{
+    numState.step += 1;
+    numState.currentBet = getBetForState(numState);
+  }
+}
+function ensureActivated(side, number){
+  if(number === 0) return null;
+  if(state.lockedNumbers[side].has(number)) return null;
+  const ns = state.numbers[side][number];
+  if(ns.status === 'cap'){
+    return null;
+  }
+  if(ns.status === 'inactive'){
+    ns.status = 'active';
+    ns.step = 1;
+    ns.phase = 1;
+    ns.activationChakra = state.currentChakra;
+    ns.previousLoss = 0;
+    ns.currentBet = getBetForState(ns);
+  }
+  return ns;
+}
+function resolveWin(side, number, numState){
+  const winBet = numState.currentBet;
+  const payout = winBet * 8;
+  const net = payout - numState.previousLoss;
+  state.liveBankroll += net;
+  numState.status = 'locked';
+  numState.lastWinBet = winBet;
+  state.lockedNumbers[side].add(number);
+  recordDrishti({
+    side, number, activationChakra:numState.activationChakra, winChakra:state.currentChakra,
+    stepsToWin:numState.step, previousLoss:numState.previousLoss, winningBet:winBet,
+    netProfitLoss:net, status:'WIN'
+  });
+  showToast('VIJAY DARSHANA', `${side}${number} achieved Lakshya Labha`);
+}
+function processSide(side, result){
+  const sideStates = state.numbers[side];
+  let exposure = 0;
+  for(let n=1;n<=9;n++){
+    const ns = sideStates[n];
+
+    if(state.lockedNumbers[side].has(n) && result === n){
+      result = 0;
+    }
+
+    if(ns.status === 'cap' && result === n){
+      ns.returned = true;
+      recordDrishti({
+        side, number:n, activationChakra:state.currentChakra, winChakra:'-',
+        stepsToWin:'-', previousLoss:'-', winningBet:'-', netProfitLoss:'-', status:'RETURNED'
+      });
+      showToast('CAP RETURNED', `${side}${n} returned from CAP`);
+    }
+
+    if(ns.status === 'active'){
+      exposure += ns.currentBet;
+    }
+  }
+
+  state.liveBankroll -= exposure;
+
+  if(result !== 0){
+    const returnedCap = sideStates[result].status === 'cap';
+    if(returnedCap){
+      // no immediate activation on same round
+    }else if(!state.lockedNumbers[side].has(result)){
+      ensureActivated(side, result);
+    }
+  }
+
+  for(let n=1;n<=9;n++){
+    const ns = sideStates[n];
+    if(ns.returned){
+      ns.status = 'active';
+      ns.phase = 2;
+      ns.step = 1;
+      ns.activationChakra = state.currentChakra + 1;
+      ns.previousLoss = 0;
+      ns.currentBet = getBetForState(ns);
+      ns.returned = false;
+      continue;
+    }
+    if(ns.status !== 'active') continue;
+    if(result === n){
+      resolveWin(side, n, ns);
+    }else{
+      advanceOrCap(side, n, ns);
+    }
+  }
+
+  if(result !== 0){
+    const ns = sideStates[result];
+    if(ns.status === 'active' && ns.activationChakra === state.currentChakra && result !== 0){
+      // activation came this round; since it already didn't win on first appearance, advance to next step next zero/loss only
+    }
+  }
+  return exposure;
+}
+function buildNextAhutiLine(side){
+  const groups = {};
+  for(let n=1;n<=9;n++){
+    const ns = state.numbers[side][n];
+    if(ns.status === 'active'){
+      const bet = ns.currentBet;
+      const label = `${n}(${ns.phase===2?'2S':'S'}${ns.step})`;
+      if(!groups[bet]) groups[bet] = [];
+      groups[bet].push(label);
+    }
+  }
+  const amounts = Object.keys(groups).map(Number).sort((a,b)=>b-a);
+  if(!amounts.length) return `${side} —`;
+  return `${side}   ` + amounts.map(a => `${compactMoney(a)} on ${groups[a].join(' ')}`).join(' | ');
+}
+function currentExposure(){
+  let total = 0;
+  ['Y','K'].forEach(side=>{
+    for(let n=1;n<=9;n++){
+      const ns = state.numbers[side][n];
+      if(ns.status === 'active') total += ns.currentBet;
+    }
+  });
+  return total;
+}
+function processChakra(){
+  state.lastRoundSnapshot = JSON.stringify(serializeState());
+  const y = state.selectedY, k = state.selectedK;
+  const exposureY = processSide('Y', y);
+  const exposureK = processSide('K', k);
+  const totalExposure = exposureY + exposureK;
+  state.roundExposures.push(totalExposure);
+
+  getCurrentKumbh().rows.unshift({
+    chakra: state.currentChakra, y, k, ahuti: totalExposure, axyapatra: state.liveBankroll
+  });
+
+  if(state.liveBankroll <= state.config.startBankroll - state.config.stopLoss){
+    showToast('TREASURY WARNING', 'Axyapatra approaching Raksha Rekha');
+  } else if(state.liveBankroll < state.config.safetyReserve){
+    showToast('TREASURY WARNING', 'Axyapatra below Raksha Nidhi');
+  }
+
+  state.currentChakra += 1;
+  state.selectedY = null;
+  state.selectedK = null;
+  saveState();
+  render();
+}
+function revertTo(obj){
+  state = obj;
+  state.lockedNumbers = {Y:new Set(obj.lockedNumbers.Y || []), K:new Set(obj.lockedNumbers.K || [])};
+  saveState();
+  render();
+}
+function undoLast(){
+  if(!state.lastRoundSnapshot) return;
+  const parsed = JSON.parse(state.lastRoundSnapshot);
+  parsed.lockedNumbers = {Y:new Set(parsed.lockedNumbers.Y || []), K:new Set(parsed.lockedNumbers.K || [])};
+  state = parsed;
+  saveState();
+  render();
+}
+function resetBoard(){
+  ['Y','K'].forEach(side=>{
+    for(let i=1;i<=9;i++) state.numbers[side][i] = createNumberState();
+    state.lockedNumbers[side] = new Set();
+  });
+  state.currentChakra = 1;
+  state.selectedY = null;
+  state.selectedK = null;
+  saveState();
+  render();
+  showToast('KUMBHA SHUDDHI', 'Board state reset');
+}
+function startPrayoga(){
+  state.kumbhCounter += 1;
+  state.currentKumbhId = state.kumbhCounter;
+  state.kumbhs.unshift({id: state.currentKumbhId, rows:[]});
+  ['Y','K'].forEach(side=>{
+    for(let i=1;i<=9;i++) state.numbers[side][i] = createNumberState();
+    state.lockedNumbers[side] = new Set();
+  });
+  state.currentChakra = 1;
+  state.selectedY = null;
+  state.selectedK = null;
+  saveState();
+  render();
+  showToast('PRAYOGA', `#${String(state.currentKumbhId).padStart(2,'0')} Kumbh created`);
+}
+function deleteHistory(){
+  if(!confirm('Delete Granth?')) return;
+  state.kumbhs = [{id:1, rows:[]}];
+  state.kumbhCounter = 1;
+  state.currentKumbhId = 1;
+  saveState();
+  render();
+}
+function exportHistory(){
+  const blob = new Blob([JSON.stringify({kumbhs:state.kumbhs}, null, 2)], {type:'application/json'});
+  downloadBlob(blob, 'kubera_warhunt_granth.json');
+}
+function importHistory(file){
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const parsed = JSON.parse(e.target.result);
+      if(Array.isArray(parsed.kumbhs)){
+        state.kumbhs = parsed.kumbhs;
+        state.kumbhCounter = Math.max(...parsed.kumbhs.map(k=>k.id),1);
+        saveState();
+        render();
+      }
+    }catch{
+      alert('Invalid Granth file');
+    }
+  };
+  reader.readAsText(file);
+}
+function exportCsv(){
+  const header = 'Side,Number,ActivationChakra,WinChakra,StepsToWin,PreviousLoss,WinningBet,NetProfitLoss,Status\n';
+  const rows = state.drishti.map(r=>[
+    r.side, r.number, r.activationChakra, r.winChakra, r.stepsToWin,
+    r.previousLoss, r.winningBet, r.netProfitLoss, r.status
+  ].join(',')).join('\n');
+  downloadBlob(new Blob([header + rows], {type:'text/csv'}), 'kubera_warhunt_drishti.csv');
+}
+function loadCsv(file){
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.trim().split(/\r?\n/);
+    const data = lines.slice(1).map(line=>{
+      const [side, number, activationChakra, winChakra, stepsToWin, previousLoss, winningBet, netProfitLoss, status] = line.split(',');
+      return {side, number, activationChakra, winChakra, stepsToWin, previousLoss, winningBet, netProfitLoss, status};
+    });
+    state.drishti = data;
+    saveState();
+    render();
+  };
+  reader.readAsText(file);
+}
+function downloadBlob(blob, name){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+function renderSangram(){
+  document.getElementById('liveBankroll').textContent = formatMoney(state.liveBankroll);
+  const delta = state.liveBankroll - state.config.startBankroll;
+  const pill = document.getElementById('bankrollDelta');
+  pill.textContent = `${delta >=0 ? 'Dhana Labha' : 'Dhana Hani'} ${delta>=0?'+':''}${compactMoney(delta)}`;
+  document.getElementById('chakraCounter').textContent = `Round : ${state.currentChakra}`;
+  document.getElementById('nextAhutiY').textContent = buildNextAhutiLine('Y');
+  document.getElementById('nextAhutiK').textContent = buildNextAhutiLine('K');
+  document.getElementById('nextAhutiT').textContent = `T   ${compactMoney(currentExposure())}`;
+  renderBoardsSelection();
+}
+function renderVyuha(){
+  ['Y','K'].forEach(side=>{
+    const holder = document.getElementById(`vyuha${side}`);
+    holder.innerHTML = '';
+    for(let n=1;n<=9;n++){
+      const ns = state.numbers[side][n];
+      const div = document.createElement('div');
+      let cls = 'vtile';
+      if(ns.status==='active') cls += ' active';
+      if(ns.status==='locked') cls += ' locked';
+      if(ns.status==='cap') cls += ' cap';
+      const pct = ns.status==='active' ? Math.min(100, (ns.step / state.config.maxSteps) * 100) : 0;
+      const meta = ns.status==='inactive' ? '-' :
+                   ns.status==='locked' ? 'LOCKED' :
+                   ns.status==='cap' ? 'CAP' :
+                   `${ns.phase===2?'2S':'S'}${ns.step}`;
+      div.className = cls;
+      div.innerHTML = `
+        <div class="num">${n}</div>
+        <div class="state ${ns.status==='active' ? statusColorForStep(ns.step) : ''}">${meta}</div>
+        <div class="progress"><span class="${statusColorForStep(ns.step)}" style="width:${pct}%; background:currentColor"></span></div>
+      `;
+      holder.appendChild(div);
+    }
+  });
+}
+function renderGranth(){
+  const list = document.getElementById('historyList');
+  list.innerHTML = '';
+  state.kumbhs.sort((a,b)=>b.id-a.id).forEach(k=>{
+    const details = document.createElement('details');
+    details.className = 'card kumbh-card';
+    details.open = k.id === state.currentKumbhId;
+    const rows = [...k.rows].sort((a,b)=>b.chakra-a.chakra).map(r=>`
+      <tr><td>${r.chakra}</td><td>${r.y}</td><td>${r.k}</td><td>${compactMoney(r.ahuti)}</td><td>${compactMoney(r.axyapatra)}</td></tr>
+    `).join('');
+    details.innerHTML = `
+      <summary>#${String(k.id).padStart(2,'0')} Kumbh</summary>
+      <div class="table-wrap"><table><thead><tr><th>Chakra</th><th>Y</th><th>K</th><th>Āhuti</th><th>Axyapatra</th></tr></thead><tbody>${rows || '<tr><td colspan="5">No Chakras yet</td></tr>'}</tbody></table></div>
+    `;
+    list.appendChild(details);
+  });
+}
+function renderDrishti(){
+  document.getElementById('sumChakras').textContent = Math.max(0, state.currentChakra - 1);
+  document.getElementById('sumAhuti').textContent = compactMoney(state.roundExposures.reduce((a,b)=>a+b,0));
+  const net = state.liveBankroll - state.config.startBankroll;
+  document.getElementById('sumProfit').textContent = `${net>=0?'+':''}${compactMoney(net)}`;
+  document.getElementById('sumExposure').textContent = compactMoney(Math.max(0, ...state.roundExposures, 0));
+  const tbody = document.querySelector('#drishtiTable tbody');
+  tbody.innerHTML = state.drishti.map(r=>`
+    <tr>
+      <td>${r.side}</td><td>${r.number}</td><td>${r.activationChakra}</td><td>${r.winChakra}</td>
+      <td>${r.stepsToWin}</td><td>${r.previousLoss}</td><td>${r.winningBet}</td>
+      <td>${r.netProfitLoss}</td><td>${r.status}</td>
+    </tr>
+  `).join('');
+}
+function renderYantra(){
+  const c = state.config;
+  cfgBankroll.value = c.startBankroll;
+  cfgTargetAmount.value = c.targetAmount;
+  cfgTargetPct.value = c.targetPct;
+  cfgStopLoss.value = c.stopLoss;
+  cfgMinBet.value = c.minBet;
+  cfgMaxBet.value = c.maxBet;
+  cfgCoinSize.value = c.coinSize;
+  cfgTargetPerNumber.value = c.targetPerNumber;
+  cfgDoubleLadder.value = c.doubleLadder;
+  cfgMaxSteps.value = c.maxSteps;
+  cfgSafetyReserve.value = c.safetyReserve;
+  cfgCapRule.value = c.capRule;
+}
+function renderMedha(){
+  const medha = document.getElementById('medhaContent');
+  const capCount = state.drishti.filter(r=>r.status === 'CAP').length;
+  const recentCaps = state.drishti.slice(0, 10).filter(r=>r.status === 'CAP').length;
+  let storm = 'None';
+  if(recentCaps >= 7) storm = 'HIGH';
+  else if(recentCaps >= 5) storm = 'MEDIUM';
+  else if(recentCaps >= 3) storm = 'LOW';
+  const insights = [
+    `Live Treasury: ${formatMoney(state.liveBankroll)}`,
+    `Net Session: ${(state.liveBankroll - state.config.startBankroll) >= 0 ? 'Dhana Labha' : 'Dhana Hani'} ${compactMoney(state.liveBankroll - state.config.startBankroll)}`,
+    `CAP count recorded: ${capCount}`,
+    `Rudra Viplava risk: ${storm}`,
+    `Highest Exposure: ${compactMoney(Math.max(0, ...state.roundExposures, 0))}`
+  ];
+  medha.innerHTML = insights.map(x=>`<div class="medha-item">${x}</div>`).join('');
+}
+function render(){
+  renderSangram();
+  renderVyuha();
+  renderGranth();
+  renderDrishti();
+  renderYantra();
+  renderMedha();
+  buildLaddersPreview();
+}
+function applyYantra(){
+  state.config.startBankroll = Number(cfgBankroll.value || 0);
+  state.config.targetAmount = Number(cfgTargetAmount.value || 0);
+  state.config.targetPct = Number(cfgTargetPct.value || 0);
+  state.config.stopLoss = Number(cfgStopLoss.value || 0);
+  state.config.minBet = Number(cfgMinBet.value || 0);
+  state.config.maxBet = Number(cfgMaxBet.value || 0);
+  state.config.coinSize = Number(cfgCoinSize.value || 100);
+  state.config.targetPerNumber = Number(cfgTargetPerNumber.value || 0);
+  state.config.doubleLadder = cfgDoubleLadder.value;
+  state.config.maxSteps = Number(cfgMaxSteps.value || 12);
+  state.config.safetyReserve = Number(cfgSafetyReserve.value || 0);
+  state.config.capRule = cfgCapRule.value;
+  saveState();
+  render();
+  showToast('YANTRA', 'Settings applied');
+}
+function syncTargetAmountFromPct(){
+  const bankroll = Number(cfgBankroll.value || 0);
+  const pct = Number(cfgTargetPct.value || 0);
+  cfgTargetAmount.value = Math.round(bankroll * pct / 100);
+}
+function syncTargetPctFromAmount(){
+  const bankroll = Number(cfgBankroll.value || 0);
+  const amount = Number(cfgTargetAmount.value || 0);
+  cfgTargetPct.value = bankroll ? ((amount / bankroll) * 100).toFixed(2) : 0;
+}
+function setScreen(name){
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  document.getElementById(`screen-${name}`).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.toggle('active', x.dataset.screen===name));
+  document.getElementById('screenTitle').textContent = screenTitles[name];
+}
+
+document.querySelectorAll('.nav-btn').forEach(btn=> btn.addEventListener('click', ()=>setScreen(btn.dataset.screen)));
+document.getElementById('undoBtn').addEventListener('click', undoLast);
+document.getElementById('resetBtn').addEventListener('click', resetBoard);
+document.getElementById('prayogaBtn').addEventListener('click', startPrayoga);
+document.getElementById('deleteHistoryBtn').addEventListener('click', deleteHistory);
+document.getElementById('exportHistoryBtn').addEventListener('click', exportHistory);
+document.getElementById('importHistoryInput').addEventListener('change', e=> e.target.files[0] && importHistory(e.target.files[0]));
+document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
+document.getElementById('loadCsvInput').addEventListener('change', e=> e.target.files[0] && loadCsv(e.target.files[0]));
+document.getElementById('applyYantraBtn').addEventListener('click', applyYantra);
+cfgTargetPct.addEventListener('input', syncTargetAmountFromPct);
+cfgTargetAmount.addEventListener('input', syncTargetPctFromAmount);
+cfgBankroll.addEventListener('input', ()=>{syncTargetAmountFromPct();});
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.classList.remove('hidden');
+});
+installBtn.addEventListener('click', async ()=>{
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  installBtn.classList.add('hidden');
+});
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('./service-worker.js'));
+}
+initBoards();
+render();
