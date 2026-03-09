@@ -137,6 +137,35 @@ function showToast(title, text, kind=''){
   setTimeout(() => el.remove(), 3800);
 }
 
+function injectKeyGlowStyles(){
+  if(document.getElementById('kubera-keyglow-style')) return;
+  const style = document.createElement('style');
+  style.id = 'kubera-keyglow-style';
+  style.textContent = `
+    .tile {
+      transition: border-color .15s ease, box-shadow .15s ease, transform .1s ease;
+    }
+    .tile.key-glow {
+      border-color: rgba(246, 198, 107, 0.95) !important;
+      box-shadow:
+        0 0 0 1px rgba(246, 198, 107, 0.55),
+        0 0 12px rgba(246, 198, 107, 0.45),
+        0 0 22px rgba(246, 140, 0, 0.22),
+        inset 0 0 10px rgba(246, 198, 107, 0.12);
+      transform: scale(0.98);
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function glowKey(el){
+  if(!el) return;
+  el.classList.remove('key-glow');
+  void el.offsetWidth;
+  el.classList.add('key-glow');
+  setTimeout(() => el.classList.remove('key-glow'), 220);
+}
+
 function renderBoards(){
   ['Y','K'].forEach(side => {
     const host = q(side === 'Y' ? 'boardY' : 'boardK');
@@ -152,7 +181,7 @@ function renderBoards(){
       btn.dataset.side = side;
       btn.dataset.num = String(n);
       btn.innerHTML = `<div class="num">${n}</div><div class="meta ${metaClass}">${code}</div>`;
-      btn.addEventListener('click', () => handleTap(side, n));
+      btn.addEventListener('click', (e) => handleTap(side, n, e.currentTarget));
       host.appendChild(btn);
     }
   });
@@ -310,10 +339,10 @@ function undoLast(){
   showToast('CHAKRA PUNARAVRITTI', 'Last chakra reverted');
 }
 
-function handleTap(side, num){
+function handleTap(side, num, el){
+  glowKey(el);
   if(state.settings.keypadMode === 'combined'){
     pending[side] = num;
-    showToast(`${side} SELECTED`, `${side}${num} ready`);
     const other = side === 'Y' ? 'K' : 'Y';
     if(pending.Y !== null && pending.K !== null){
       processRound('both', { Y: pending.Y, K: pending.K });
@@ -553,6 +582,7 @@ function setupInstall(){
   }
 }
 
+injectKeyGlowStyles();
 setupInstall();
 setupTabs();
 setupControls();
