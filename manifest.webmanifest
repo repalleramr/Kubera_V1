@@ -3,8 +3,9 @@
   "short_name": "Warhunt",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#120b06",
-  "theme_color": "#120b06",
+  "background_color": "#110a05",
+  "theme_color": "#110a05",
+  "description": "Kubera mythology themed Warhunt PWA.",
   "icons": [
     {
       "src": "icons/icon-192.png",
