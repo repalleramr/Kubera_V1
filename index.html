@@ -1,188 +1,188 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kubera Warhunt — V1 Treasury Cave Test Patch</title>
-  <meta name="theme-color" content="#120b06">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f0b07" />
+  <title>Kubera Warhunt — V1 Treasury Cave</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<div id="app">
-  <header class="fixed-header">
-    <div class="header-top">
-      <div>
-        <div class="brand">KUBERA WARHUNT</div>
-        <div id="screenTitle" class="screen-title">⚔ SANGRAM</div>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">KUBERA WARHUNT</div>
+      <div class="screen-title" id="screenTitle">⚔ SANGRAM</div>
+      <div class="bank-card">
+        <div class="label">AXYAPATRA</div>
+        <div class="amount" id="liveBankroll">₹ 30,000</div>
       </div>
-      <button id="installBtn" class="ghost hidden">Install</button>
-    </div>
-    <section class="bank-card">
-      <div class="label">JIVA AXYAPATRA</div>
-      <div id="liveBankroll" class="bank-value">₹ 30,000</div>
-      <div class="subline"><span id="bankrollStatus">Ready for Sangram</span><span id="chakraBadge">Chakra 0</span></div>
-    </section>
-  </header>
+    </header>
 
-  <main class="content">
-    <section id="tab-sangram" class="tab-page active">
-      <div id="notificationArea" class="notification-stack"></div>
-
-      <section class="card">
-        <div class="row between center gap">
+    <main class="content" id="content">
+      <section class="screen active" data-screen="sangram">
+        <div class="panel compact-row">
           <div>
-            <div class="label">NEXT ĀHUTI</div>
-            <div id="nextAhutiY" class="ahuti-line">Y —</div>
-            <div id="nextAhutiK" class="ahuti-line">K —</div>
-            <div id="nextAhutiT" class="ahuti-total">T 0</div>
+            <div class="small-label">CHAKRA</div>
+            <div class="big-value" id="chakraValue">Round : 1</div>
           </div>
-          <div class="chakra-panel">
-            <div class="label">CHAKRA</div>
-            <div id="chakraValue" class="chakra-value">0</div>
+          <div class="controls-inline">
+            <button id="undoBtn" class="small-btn">Undo</button>
+            <button id="kumbhaBtn" class="small-btn warn">Kumbha</button>
+            <button id="prayogaBtn" class="small-btn">Prayoga</button>
+          </div>
+        </div>
+
+        <div id="notificationArea" class="notification-area"></div>
+
+        <div class="panel">
+          <div class="panel-title">NEXT ĀHUTI</div>
+          <div class="ahuti-lines">
+            <div id="nextY">Y  —</div>
+            <div id="nextK">K  —</div>
+            <div id="nextT">T  0</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Tile Codes</div>
+          <div class="legend-strip">
+            <span class="legend-chip">I = Inactive</span>
+            <span class="legend-chip">A = Active</span>
+            <span class="legend-chip">Sx = Step</span>
+            <span class="legend-chip">L = Locked</span>
+            <span class="legend-chip">C = CAP</span>
+            <span class="legend-chip">B = Back on track</span>
+          </div>
+        </div>
+
+        <div class="boards-wrap">
+          <div class="board-card">
+            <div class="board-title">YAKSHA BOARD (Y)</div>
+            <div class="number-grid keypad" data-side="Y" id="yakshaPad"></div>
+          </div>
+          <div class="board-card">
+            <div class="board-title">KINNARA BOARD (K)</div>
+            <div class="number-grid keypad" data-side="K" id="kinnaraPad"></div>
           </div>
         </div>
       </section>
 
-      <section class="boards-row">
-        <section class="card keypad-card">
-          <div class="label">YAKSHA BOARD (Y)</div>
-          <div id="boardY" class="keypad-grid"></div>
-          <div id="pendingY" class="pending-line">Pending: -</div>
-        </section>
-        <section class="card keypad-card">
-          <div class="label">KINNARA BOARD (K)</div>
-          <div id="boardK" class="keypad-grid"></div>
-          <div id="pendingK" class="pending-line">Pending: -</div>
-        </section>
-      </section>
-
-      <section class="card">
-        <div class="label">CONTROL PANEL</div>
-        <div class="controls">
-          <button id="undoBtn">Undo</button>
-          <button id="kumbhaBtn">Kumbha</button>
-          <button id="prayogaBtn">Prayoga</button>
-        </div>
-      </section>
-    </section>
-
-    <section id="tab-vyuha" class="tab-page">
-      <section class="card">
-        <div class="label">🛡 VYUHA — NUMBER FORMATION</div>
-        <div class="boards-row">
-          <div>
-            <div class="side-heading">YAKSHA</div>
-            <div id="vyuhaY" class="formation-grid"></div>
+      <section class="screen" data-screen="vyuha">
+        <div class="panel"><div class="panel-title">🛡 VYUHA — NUMBER FORMATION</div></div>
+        <div class="boards-wrap">
+          <div class="board-card">
+            <div class="board-title">YAKSHA SIDE</div>
+            <div class="formation-grid" id="vyuhaY"></div>
           </div>
-          <div>
-            <div class="side-heading">KINNARA</div>
-            <div id="vyuhaK" class="formation-grid"></div>
+          <div class="board-card">
+            <div class="board-title">KINNARA SIDE</div>
+            <div class="formation-grid" id="vyuhaK"></div>
           </div>
         </div>
       </section>
-    </section>
 
-    <section id="tab-granth" class="tab-page">
-      <section class="card">
-        <div class="row between center">
-          <div class="label">📜 GRANTH — KUMBH HISTORY</div>
-          <div class="row gap">
-            <button id="exportGranthBtn" class="small">Export</button>
-            <label class="file-btn small">Import<input id="importGranthInput" type="file" accept=".json"></label>
-            <button id="deleteGranthBtn" class="small danger">Delete</button>
+      <section class="screen" data-screen="granth">
+        <div class="panel compact-row">
+          <div class="panel-title">📜 GRANTH — KUMBH HISTORY</div>
+          <div class="controls-inline">
+            <button id="exportHistoryBtn" class="small-btn">Export</button>
+            <label class="small-btn file-btn">Import<input type="file" id="importHistoryFile" accept="application/json" hidden></label>
+            <button id="clearHistoryBtn" class="small-btn warn">Delete</button>
           </div>
         </div>
-        <div id="granthList" class="granth-list"></div>
+        <div id="granthList" class="stack-list"></div>
       </section>
-    </section>
 
-    <section id="tab-drishti" class="tab-page">
-      <section class="card">
-        <div class="label">👁 DRISHTI — SESSION ANALYTICS</div>
-        <div class="summary-grid">
-          <div class="summary-card"><div class="mini">Chakras Played</div><div id="sumChakras">0</div></div>
-          <div class="summary-card"><div class="mini">Total Āhuti</div><div id="sumAhuti">0</div></div>
-          <div class="summary-card"><div class="mini">Net Profit</div><div id="sumNet">0</div></div>
-          <div class="summary-card"><div class="mini">Max Exposure</div><div id="sumMaxExposure">0</div></div>
+      <section class="screen" data-screen="drishti">
+        <div class="panel"><div class="panel-title">👁 DRISHTI — SESSION ANALYTICS</div></div>
+        <div class="summary-cards">
+          <div class="summary-card"><div>Chakras Played</div><strong id="summaryChakras">0</strong></div>
+          <div class="summary-card"><div>Total Āhuti</div><strong id="summaryAhuti">0</strong></div>
+          <div class="summary-card"><div>Net Profit</div><strong id="summaryNet">0</strong></div>
+          <div class="summary-card"><div>Max Exposure</div><strong id="summaryMax">0</strong></div>
         </div>
-        <div class="row gap wrap top-space">
-          <button id="exportCsvBtn" class="small">Export CSV</button>
-          <label class="file-btn small">Load CSV<input id="loadCsvInput" type="file" accept=".csv,text/csv"></label>
+        <div class="panel compact-row">
+          <div class="panel-title">Number Performance</div>
+          <div class="controls-inline">
+            <button id="exportCsvBtn" class="small-btn">Export CSV</button>
+            <label class="small-btn file-btn">Load CSV<input type="file" id="loadCsvFile" accept=".csv,text/csv" hidden></label>
+          </div>
         </div>
-        <div class="table-wrap top-space">
+        <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Side</th><th>No</th><th>Act</th><th>Win</th><th>Steps</th><th>Prev Loss</th><th>Win Bet</th><th>Net P/L</th><th>Status</th></tr>
+              <tr><th>Side</th><th>No</th><th>Act Chakra</th><th>Win Chakra</th><th>Steps</th><th>Prev Loss</th><th>Win Bet</th><th>Net P/L</th><th>Status</th></tr>
             </thead>
             <tbody id="drishtiBody"></tbody>
           </table>
         </div>
       </section>
-    </section>
 
-    <section id="tab-sopana" class="tab-page">
-      <section class="card">
-        <div class="label">🪜 SOPANA</div>
-        <div class="row wrap gap">
-          <div class="legend-chip">1st Ladder: <span id="firstStepCount">30</span> steps</div>
-          <div class="legend-chip">2nd Ladder: fixed <span id="secondStepCount">15</span> steps</div>
-        </div>
-        <div class="table-wrap top-space">
-          <table>
-            <thead><tr><th>Step</th><th>Bet</th><th>Step</th><th>Bet</th></tr></thead>
-            <tbody id="sopanaTable"></tbody>
-          </table>
+      <section class="screen" data-screen="sopana">
+        <div class="panel"><div class="panel-title">🪜 SOPANA</div></div>
+        <div class="boards-wrap">
+          <div class="panel">
+            <div class="panel-title">First Ladder (30 default)</div>
+            <div id="firstLadderList" class="ladder-list mono"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">Second Ladder (15 fixed)</div>
+            <div id="secondLadderList" class="ladder-list mono"></div>
+          </div>
         </div>
       </section>
-    </section>
 
-    <section id="tab-yantra" class="tab-page">
-      <section class="card">
-        <div class="label">⚙ YANTRA</div>
+      <section class="screen" data-screen="yantra">
+        <div class="panel"><div class="panel-title">⚙ YANTRA</div></div>
         <div class="settings-grid">
-          <label>Axyapatra<input id="setBankroll" type="number" min="0" step="100"></label>
-          <label>Target / Number<input id="setTargetProfit" type="number" min="0" step="100"></label>
-          <label>Min Āhuti<input id="setMinBet" type="number" min="0" step="100"></label>
-          <label>Max Āhuti<input id="setMaxBet" type="number" min="0" step="100"></label>
-          <label>Mudra Mana
-            <select id="setCoinSize">
-              <option>100</option><option>500</option><option>1000</option><option>5000</option><option>10000</option>
-            </select>
+          <label><span>Axyapatra</span><input id="setBankroll" type="number" min="0" step="100" /></label>
+          <label><span>Target $</span><input id="setTargetDollar" type="number" min="0" step="100" /></label>
+          <label><span>Target %</span><input id="setTargetPercent" type="number" min="0" step="0.01" /></label>
+          <label><span>Stop Loss</span><input id="setStopLoss" type="number" min="0" step="100" /></label>
+          <label><span>Min</span><input id="setMin" type="number" min="0" step="100" /></label>
+          <label><span>Max</span><input id="setMax" type="number" min="0" step="100" /></label>
+          <label><span>Multiple / Coin Size</span>
+            <select id="setCoinSize"><option>100</option><option>500</option><option>1000</option><option>5000</option><option>10000</option></select>
           </label>
-          <label>1st Ladder Steps<input id="setMaxSteps" type="number" min="1" step="1"></label>
-          <label>2nd Ladder Steps<input id="setSecondMaxSteps" type="number" min="15" step="1" disabled></label>
-          <label>Keypad Mode
-            <select id="setKeypadMode">
-              <option value="combined">Combined</option>
-              <option value="individual">Individual</option>
-            </select>
-          </label>
+          <label><span>Target / Number</span><input id="setTargetPerNumber" type="number" min="0" step="100" /></label>
+          <label><span>Double Ladder</span><select id="setDoubleLadder"><option value="on">ON</option><option value="off">OFF</option></select></label>
+          <label><span>Max Steps</span><input id="setMaxSteps" type="number" min="1" step="1" /></label>
+          <label><span>Safety Reserve</span><input id="setSafetyReserve" type="number" min="0" step="100" /></label>
+          <label><span>CAP Rule</span><select id="setCapRule"><option value="on">ON</option><option value="off">OFF</option></select></label>
+          <label><span>Keypad Mode</span><select id="setKeypadMode"><option value="combined">Combined</option><option value="individual">Individual</option></select></label>
         </div>
-        <div class="row gap top-space">
-          <button id="applyYantraBtn">Apply Yantra</button>
+        <div class="panel compact-row">
+          <div class="note">First ladder defaults to 30. Second ladder fixed at 15.</div>
+          <button id="applyYantraBtn" class="primary-btn">APPLY YANTRA</button>
         </div>
       </section>
-    </section>
 
-    <section id="tab-medha" class="tab-page">
-      <section class="card">
-        <div class="label">🧠 MEDHA</div>
-        <div id="medhaInsights" class="medha-box"></div>
+      <section class="screen" data-screen="medha">
+        <div class="panel"><div class="panel-title">🧠 MEDHA</div></div>
+        <div class="panel">
+          <div class="panel-title">System Notes</div>
+          <ul class="note-list">
+            <li>First appearance activates only. No win.</li>
+            <li>Repeat appearance wins and locks that number.</li>
+            <li>CAP return reactivates second ladder from next round.</li>
+            <li>Locked numbers behave like zero.</li>
+          </ul>
+        </div>
       </section>
-    </section>
-  </main>
+    </main>
 
-  <nav class="bottom-nav">
-    <button class="nav active" data-tab="sangram">⚔<span>Sangram</span></button>
-    <button class="nav" data-tab="vyuha">🛡<span>Vyuha</span></button>
-    <button class="nav" data-tab="granth">📜<span>Granth</span></button>
-    <button class="nav" data-tab="drishti">👁<span>Drishti</span></button>
-    <button class="nav" data-tab="sopana">🪜<span>Sopana</span></button>
-    <button class="nav" data-tab="yantra">⚙<span>Yantra</span></button>
-    <button class="nav" data-tab="medha">🧠<span>Medha</span></button>
-  </nav>
-</div>
-<script src="app.js"></script>
+    <nav class="bottom-nav" id="bottomNav">
+      <button class="nav-btn active" data-target="sangram">⚔<span>Sangram</span></button>
+      <button class="nav-btn" data-target="vyuha">🛡<span>Vyuha</span></button>
+      <button class="nav-btn" data-target="granth">📜<span>Granth</span></button>
+      <button class="nav-btn" data-target="drishti">👁<span>Drishti</span></button>
+      <button class="nav-btn" data-target="sopana">🪜<span>Sopana</span></button>
+      <button class="nav-btn" data-target="yantra">⚙<span>Yantra</span></button>
+      <button class="nav-btn" data-target="medha">🧠<span>Medha</span></button>
+    </nav>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
