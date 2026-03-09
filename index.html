@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Kubera Warhunt — V1 Treasury Cave</title>
-  <meta name="theme-color" content="#110a05">
+  <meta name="theme-color" content="#120a05">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="toastLayer" class="toast-layer"></div>
+  <div id="toastLayer" class="toast-layer" aria-live="polite" aria-atomic="true"></div>
+
   <div id="app">
     <header class="fixed-shell">
       <div class="topbar">
@@ -17,7 +18,7 @@
           <div class="brand">KUBERA WARHUNT</div>
           <div id="screenTitle" class="screen-title">⚔ SANGRAM</div>
         </div>
-        <button id="installBtn" class="install-btn hidden">Install</button>
+        <button id="installBtn" class="install-btn hidden" type="button">Install</button>
       </div>
       <section class="card glow bankroll-card">
         <div class="label">AXYAPATRA</div>
@@ -25,7 +26,7 @@
       </section>
     </header>
 
-    <main id="content" class="content-pad">
+    <main class="content-pad">
       <section id="screen-sangram" class="screen active">
         <section class="boards-compact">
           <div class="board-block">
@@ -40,9 +41,9 @@
 
         <section class="card compact-card">
           <div class="label">NEXT ĀHUTI</div>
-          <div id="nextY" class="ahuti-row"></div>
-          <div id="nextK" class="ahuti-row"></div>
-          <div id="nextT" class="total"></div>
+          <div id="nextY" class="ahuti-row">Y -</div>
+          <div id="nextK" class="ahuti-row">K -</div>
+          <div id="nextT" class="total">T 0</div>
         </section>
 
         <section class="card compact-card">
@@ -52,9 +53,9 @@
               <div id="chakraValue" class="chakra-value">Round : 0</div>
             </div>
             <div class="controls compact-controls">
-              <button id="undoBtn">Undo</button>
-              <button id="kumbhaBtn" class="warn">Kumbha</button>
-              <button id="prayogaBtn">Prayoga</button>
+              <button id="undoBtn" type="button">Undo</button>
+              <button id="kumbhaBtn" class="warn" type="button">Kumbha</button>
+              <button id="prayogaBtn" type="button">Prayoga</button>
             </div>
           </div>
         </section>
@@ -72,9 +73,9 @@
           <div class="toolbar">
             <div class="label">GRANTH</div>
             <div class="btn-row">
-              <button id="exportGranthBtn">Export</button>
-              <button id="importGranthBtn">Load</button>
-              <button id="deleteGranthBtn" class="warn">Delete</button>
+              <button id="exportGranthBtn" type="button">Export</button>
+              <button id="importGranthBtn" type="button">Load</button>
+              <button id="deleteGranthBtn" class="warn" type="button">Delete</button>
               <input id="importGranthFile" type="file" accept="application/json" hidden>
             </div>
           </div>
@@ -93,8 +94,8 @@
           <div class="toolbar">
             <div class="label">NUMBER PERFORMANCE</div>
             <div class="btn-row">
-              <button id="exportCsvBtn">Export CSV</button>
-              <button id="loadCsvBtn">Load CSV</button>
+              <button id="exportCsvBtn" type="button">Export CSV</button>
+              <button id="loadCsvBtn" type="button">Load CSV</button>
               <input id="loadCsvFile" type="file" accept=".csv,text/csv" hidden>
             </div>
           </div>
@@ -107,8 +108,8 @@
           <div class="toolbar">
             <div class="label">SOPANA</div>
             <div class="btn-row">
-              <button id="saveLadderBtn">Save</button>
-              <button id="resetLadderBtn">Reset</button>
+              <button id="saveLadderBtn" type="button">Save</button>
+              <button id="resetLadderBtn" type="button">Reset</button>
             </div>
           </div>
           <div class="table-wrap"><table id="ladderTable"><thead><tr><th>Step</th><th>Bet</th><th>Win Return</th><th>Net Profit</th><th>If Lose Total</th></tr></thead><tbody></tbody></table></div>
@@ -119,20 +120,20 @@
         <section class="card yantra-card">
           <div class="label">YANTRA</div>
           <div class="settings-grid">
-            <label><span>Axyapatra</span><input id="setBankroll" type="number" value="30000"></label>
-            <label><span>Target $</span><input id="setTargetDollar" type="number" value="500"></label>
-            <label><span>Target %</span><input id="setTargetPercent" type="number" step="0.01" value="1.67"></label>
-            <label><span>Stop Loss</span><input id="setStopLoss" type="number" value="2000"></label>
-            <label><span>Min</span><input id="setMin" type="number" value="100"></label>
-            <label><span>Max</span><input id="setMax" type="number" value="3000"></label>
+            <label><span>Axyapatra</span><input id="setBankroll" type="number"></label>
+            <label><span>Target $</span><input id="setTargetDollar" type="number"></label>
+            <label><span>Target %</span><input id="setTargetPercent" type="number" step="0.01"></label>
+            <label><span>Stop Loss</span><input id="setStopLoss" type="number"></label>
+            <label><span>Min</span><input id="setMin" type="number"></label>
+            <label><span>Max</span><input id="setMax" type="number"></label>
             <label><span>Coin Size</span><select id="setCoin"><option>100</option><option>500</option><option>1000</option><option>5000</option><option>10000</option></select></label>
-            <label><span>Target / Number</span><input id="setTargetNum" type="number" value="500"></label>
+            <label><span>Target / Number</span><input id="setTargetNum" type="number"></label>
             <label><span>Keypad Mode</span><select id="setKeypadMode"><option value="combined">Combined</option><option value="individual">Individual</option></select></label>
-            <label><span>Max Steps</span><input id="setMaxSteps" type="number" value="30"></label>
-            <label><span>Safety Reserve</span><input id="setReserve" type="number" value="20000"></label>
+            <label><span>Max Steps</span><input id="setMaxSteps" type="number"></label>
+            <label><span>Safety Reserve</span><input id="setReserve" type="number"></label>
             <label><span>CAP Rule</span><select id="setCapRule"><option value="on">ON</option><option value="off">OFF</option></select></label>
           </div>
-          <div class="save-wrap"><button id="applyYantraBtn">APPLY YANTRA</button></div>
+          <div class="save-wrap"><button id="applyYantraBtn" type="button">APPLY YANTRA</button></div>
         </section>
       </section>
 
@@ -145,13 +146,13 @@
     </main>
 
     <nav class="bottom-nav">
-      <button class="nav active" data-target="sangram">⚔<span>Sangram</span></button>
-      <button class="nav" data-target="vyuha">🛡<span>Vyuha</span></button>
-      <button class="nav" data-target="granth">📜<span>Granth</span></button>
-      <button class="nav" data-target="drishti">👁<span>Drishti</span></button>
-      <button class="nav" data-target="sopana">🪜<span>Sopana</span></button>
-      <button class="nav" data-target="yantra">⚙<span>Yantra</span></button>
-      <button class="nav" data-target="medha">🧠<span>Medha</span></button>
+      <button class="nav active" data-target="sangram" type="button">⚔<span>Sangram</span></button>
+      <button class="nav" data-target="vyuha" type="button">🛡<span>Vyuha</span></button>
+      <button class="nav" data-target="granth" type="button">📜<span>Granth</span></button>
+      <button class="nav" data-target="drishti" type="button">👁<span>Drishti</span></button>
+      <button class="nav" data-target="sopana" type="button">🪜<span>Sopana</span></button>
+      <button class="nav" data-target="yantra" type="button">⚙<span>Yantra</span></button>
+      <button class="nav" data-target="medha" type="button">🧠<span>Medha</span></button>
     </nav>
   </div>
   <script src="app.js"></script>
