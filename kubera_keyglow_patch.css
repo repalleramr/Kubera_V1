@@ -1,0 +1,26 @@
+/* Kubera Warhunt patch: remove selection popups, add key glow */
+
+/* Stronger visual feedback for keypad/button press */
+button.kubera-key-glow,
+.key-btn.kubera-key-glow,
+.num-btn.kubera-key-glow,
+.keypad button.kubera-key-glow,
+[data-key].kubera-key-glow,
+[data-number].kubera-key-glow {
+  border-color: rgba(246, 198, 107, 0.98) !important;
+  box-shadow:
+    0 0 0 1px rgba(246, 198, 107, 0.55),
+    0 0 12px rgba(246, 198, 107, 0.42),
+    0 0 22px rgba(246, 140, 0, 0.22),
+    inset 0 0 10px rgba(246, 198, 107, 0.12) !important;
+  transform: scale(0.98);
+}
+
+button,
+.key-btn,
+.num-btn,
+.keypad button,
+[data-key],
+[data-number] {
+  transition: border-color .15s ease, box-shadow .15s ease, transform .10s ease;
+}
